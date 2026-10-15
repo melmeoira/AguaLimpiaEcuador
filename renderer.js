@@ -45,10 +45,10 @@ class SocialWaterMap {
 
         // Carga concurrente y asíncrona de ficheros externos
         Promise.all([
-            fetch('ecuador.geojson').then(res => { if (!res.ok) throw new Error(); return res.json(); }),
-            fetch('comunidades.json').then(res => { if (!res.ok) throw new Error(); return res.json(); }),
-            fetch('capitales.geojson').then(res => { if (!res.ok) throw new Error(); return res.json(); }),
-            fetch('rios_corregidos.geojson').then(res => { if (!res.ok) throw new Error(); return res.json(); })
+            fetch('geojson/ecuador.geojson').then(res => { if (!res.ok) throw new Error(); return res.json(); }),
+            fetch('geojson/comunidades.json').then(res => { if (!res.ok) throw new Error(); return res.json(); }),
+            fetch('geojson/capitales.geojson').then(res => { if (!res.ok) throw new Error(); return res.json(); }),
+            fetch('geojson/rios_corregidos.geojson').then(res => { if (!res.ok) throw new Error(); return res.json(); })
         ])
         .then(([datosFrontera, datosComunidades, datosCapitales, datosRios]) => {
             this.procesarCapaFrontera(datosFrontera);
