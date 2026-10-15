@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>The Social Water - Ecuador</title>
+        
+        <link rel="icon" type="image/jpeg" href="/img/thesocialwater.jpg" />
+
+        <link rel="stylesheet" href="/js/leaflet/leaflet.css" />
+        <script type="importmap">
+        {
+            "imports": { "leaflet": "/js/leaflet/leaflet.js" }
+        }
+        </script>
+    
+        <link rel="stylesheet" href="/css/estilo.css" />
+
+        <script type="module" src="renderer.js"></script>
+    </head>
+    <body>
+        <div id="map"></div>
+        <button id="btn-home" class="btn-restablecer" title="Restablecer vista general de Ecuador">🇪🇨</button>
+        <div class="panel-leyenda">
+            <div class="cabecera-panel">
+                <!-- CONTENEDOR DEL LOGO Y TÍTULO (Actualizado) -->
+                <div class="contenedor-logo-titulo">
+                    <!-- Reemplaza la ruta en src si tienes el logo dentro de otra carpeta (ej: src="/img/logo-the-social-water-blanco.png") -->
+                    <img src="img/logo-the-social-water-blanco.png" alt="Logo The Social Water" class="logo-cabecera" />
+                    <h3 style="margin-left: 30px;">Ecuador</h3>
+                </div>
+                <p>Agua potable para comunidades vulnerables.</p>
+            </div>
+
+            <div class="contenedor-capas-interno">
+                <label class="opcion-capa">
+                    <input type="checkbox" id="chk-capitales" checked />
+                    <span>Capitales Provinciales</span>
+                </label>
+                <label class="opcion-capa">
+                    <input type="checkbox" id="chk-rios" />
+                    <span>Ríos Principales</span>
+                </label>
+            </div>
+
+            <!-- SECCIÓN DE FILTROS RÁPIDOS ACTUALIZADA CON CONTADORES -->
+            <div class="contenedor-filtros">
+                <button class="btn-filtro activo" data-filtro="Todas">Todas <span id="count-Todas"></span></button>
+                <button class="btn-filtro" data-filtro="Óptima">Óptima <span id="count-Optima"></span></button>
+                <button class="btn-filtro" data-filtro="Alerta">Alerta <span id="count-Alerta"></span></button>
+                <button class="btn-filtro" data-filtro="Crítica">Crítica <span id="count-Critica"></span></button>
+            </div>
+            <div class="contenedor-buscador">
+                <input type="text" id="input-busqueda" placeholder="Buscar comunidad o provincia..." autocomplete="off" />
+            </div>
+
+            <!-- FILTRO AVANZADO HUMANITARIO (Nuevo) -->
+            <div class="contenedor-filtro-avanzado">
+                <label class="switch-humanitario">
+                    <input type="checkbox" id="chk-sin-filtros" />
+                    <span class="slider"></span>
+                </label>
+                <span class="texto-filtro-avanzado">Mostrar solo comunidades sin filtros</span>
+            </div>
+
+            <div id="lista-comunidades" class="lista-contenedor"></div>
+        </div>
+
+        <div id="modal-visor" class="modal-oculto">
+            <span id="btn-cerrar-modal">&times;</span>
+            <img id="imagen-ampliada" src="" alt="Ampliación de comunidad" />
+        </div>
+
+    </body>
+</html>

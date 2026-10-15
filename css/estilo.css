@@ -1,0 +1,556 @@
+@import url('https://googleapis.com');
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+  background: #0b1622; /* Fondo azul marino profundo para el mapa antes de cargar */
+}
+
+/* BOTÓN FLOTANTE PARA RESTABLECER VISTA */
+.btn-restablecer {
+  position: absolute;
+  top: 80px; 
+  left: 10px;
+  z-index: 1000;
+  width: 34px;
+  height: 34px;
+  background-color: #ffffff;
+  border: 2px solid rgba(0,0,0,0.15);
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0, 44, 84, 0.3);
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-restablecer:hover {
+  background-color: #f0f7ff; /* Sutil destello azul al pasar el ratón */
+  transform: scale(1.05);
+}
+
+/* PANEL FLOTANTE LATERAL */
+.panel-leyenda {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 320px;
+  background: rgba(11, 28, 44, 0.92); /* Azul océano profundo traslúcido */
+  color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 20, 38, 0.6);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid rgba(0, 180, 216, 0.25); /* Borde cian sutil */
+}
+
+.cabecera-panel {
+  padding: 15px;
+  background: rgba(0, 119, 182, 0.15); /* Tinte azul agua */
+  border-bottom: 1px solid rgba(0, 180, 216, 0.3);
+}
+
+.cabecera-panel h3 {
+  margin: 0;
+  color: #00b4d8; /* Cian brillante para el título del agua */
+  font-size: 1.8rem;
+  letter-spacing: 0.5px;
+}
+
+.cabecera-panel p {
+  margin: 5px 0 0 0;
+  font-size: 0.85rem;
+  color: #90e0ef; /* Azul claro suave para la descripción */
+  opacity: 0.8;
+}
+
+.lista-contenedor {
+  padding: 15px;
+  max-height: 290px;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+
+/* DISEÑO DE LA BARRA DE DESPLAZAMIENTO ESTILO AGUA */
+.lista-contenedor::-webkit-scrollbar {
+  width: 6px;
+}
+.lista-contenedor::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.15);
+}
+.lista-contenedor::-webkit-scrollbar-thumb {
+  background: rgba(0, 180, 216, 0.4); /* Píldora de scroll color cian */
+  border-radius: 3px;
+}
+.lista-contenedor::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 180, 216, 0.7);
+}
+
+/* TARJETAS DE CADA COMUNIDAD */
+.tarjeta-comunidad {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(144, 224, 239, 0.1);
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+}
+
+.tarjeta-comunidad:last-child {
+  margin-bottom: 0;
+}
+
+.tarjeta-comunidad:hover {
+  background: rgba(0, 119, 182, 0.15); /* Resaltado azul agua al posarse encima */
+  border-color: rgba(0, 180, 216, 0.4);
+  transform: translateX(-3px);
+}
+
+.tarjeta-comunidad h5 {
+  margin: 0 0 5px 0;
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.tarjeta-comunidad p {
+  margin: 0 0 8px 0;
+  font-size: 0.8rem;
+  color: #caf0f8;
+  opacity: 0.8;
+}
+
+.indicador {
+  font-size: 0.75rem;
+  color: #90e0ef;
+}
+
+.indicador b {
+  color: #ffffff;
+}
+
+.etiqueta-estado {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: #000000;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+
+/* BOTONERA DE FILTROS RÁPIDOS */
+.contenedor-filtros {
+  display: flex;
+  gap: 6px;
+  padding: 10px 15px;
+  background: rgba(0, 12, 24, 0.3);
+  border-bottom: 1px solid rgba(0, 180, 216, 0.2);
+}
+
+.btn-filtro {
+  flex: 1;
+  padding: 6px 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  border: 1px solid rgba(144, 224, 239, 0.2);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #e0f2fe;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-filtro:hover {
+  background: rgba(0, 180, 216, 0.15);
+  border-color: rgba(0, 180, 216, 0.5);
+}
+
+/* Clases de activación adaptadas a la nueva gama cromática fluida */
+.btn-filtro.activo[data-filtro="Todas"] { background: #0077b6; border-color: #0096c7; color: #ffffff; }
+.btn-filtro.activo[data-filtro="Óptima"] { background: #2ecc71; border-color: #27ae60; color: #000000; }
+.btn-filtro.activo[data-filtro="Alerta"] { background: #f1c40f; border-color: #f39c12; color: #000000; }
+.btn-filtro.activo[data-filtro="Crítica"] { background: #e74c3c; border-color: #c0392b; color: #ffffff; }
+
+.btn-filtro span {
+  font-size: 0.7rem;
+  opacity: 0.85;
+  margin-left: 2px;
+  display: inline-block;
+  white-space: nowrap; 
+}
+
+
+/* BARRA DE BÚSQUEDA */
+.contenedor-buscador {
+  padding: 10px 15px;
+  background: rgba(0, 8, 16, 0.15);
+  border-bottom: 1px solid rgba(0, 180, 216, 0.15);
+}
+
+#input-busqueda {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  background: rgba(0, 12, 24, 0.4);
+  border: 1px solid rgba(144, 224, 239, 0.2);
+  border-radius: 4px;
+  color: #ffffff;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+#input-busqueda:focus {
+  outline: none;
+  background: rgba(0, 24, 48, 0.6);
+  border-color: #00b4d8; /* Resaltado cian al enfocar el cuadro de búsqueda */
+  box-shadow: 0 0 6px rgba(0, 180, 216, 0.4);
+}
+
+#input-busqueda::placeholder {
+  color: rgba(144, 224, 239, 0.4); /* Placeholder en azul cristalino suave */
+}
+
+
+/* ESTILOS DEL CARRUSEL EN EL POPUP */
+.contenedor-carrusel {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  margin-top: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #000;
+}
+
+.foto-carrusel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+  
+  /* REGLAS PARA LA ANIMACIÓN SUAVE: */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
+  z-index: 1;
+}
+
+.foto-carrusel.activa {
+  opacity: 1;
+  visibility: visible;
+  z-index: 2; /* Se posiciona por encima con un fundido suave */
+}
+
+/* Botones de navegación (Flechas flotantes sobre las fotos) */
+.btn-carrusel {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(4, 12, 20, 0.6);
+  color: white;
+  border: none;
+  font-size: 14px;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background 0.2s, transform 0.1s;
+  z-index: 10; /* Obliga a las flechas a estar siempre por encima de las imágenes */
+}
+
+.btn-carrusel:hover {
+  background: rgba(0, 180, 216, 0.9); /* Resaltado cian de The Social Water */
+  transform: translateY(-50%) scale(1.1);
+}
+
+.btn-carrusel:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+.btn-carrusel.prev { left: 5px; }
+.btn-carrusel.next { right: 5px; }
+
+
+
+/* VENTANA MODAL PARA AMPLIAR FOTOS */
+#modal-visor {
+  display: flex; /* Cambiamos a flex fijo para que la transición de opacidad funcione */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(4, 12, 20, 0.96); /* Fondo estilo océano profundo */
+  z-index: 9999; /* Se superpone a todo, incluyendo Leaflet y el panel lateral */
+  align-items: center;
+  justify-content: center;
+
+  /* REGLAS PARA LA ANIMACIÓN DE FONDO: Oculto por defecto con transición */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+}
+
+/* Estado activo del modal manejado por JavaScript */
+#modal-visor.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+#imagen-ampliada {
+  max-width: 85%;
+  max-height: 85%;
+  border-radius: 6px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(144, 224, 239, 0.25);
+  
+  /* REGLAS PARA LA ANIMACIÓN DE LA IMAGEN: Efecto pop-up de escala sutil */
+  transform: scale(0.93);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* Curva suave con rebote elástico leve */
+}
+
+/* Cuando el modal se activa, la imagen se expande a su tamaño real de forma fluida */
+#modal-visor.visible #imagen-ampliada {
+  transform: scale(1);
+}
+
+/* Botón de cerrar (X) */
+#btn-cerrar-modal {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  color: #90e0ef;
+  font-size: 40px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: color 0.2s, transform 0.2s;
+}
+
+#btn-cerrar-modal:hover {
+  color: #e74c3c; /* Cambia a rojo de cierre al posarse encima */
+  transform: scale(1.1);
+}
+
+/* Hacemos que la foto del carrusel indique que se puede hacer clic */
+.foto-carrusel {
+  cursor: pointer;
+}
+
+
+
+/* RECUADRO DE CAPAS INTEGRADO EN EL PANEL */
+.contenedor-capas-interno {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 15px;
+  background: rgba(0, 8, 16, 0.25);
+  border-bottom: 1px solid rgba(0, 180, 216, 0.2);
+}
+
+.opcion-capa {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #caf0f8;
+  user-select: none;
+}
+
+.opcion-capa input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: #00b4d8; /* Pinta los checks de color cian */
+  margin-right: 8px;
+  width: 14px;
+  height: 14px;
+}
+
+.opcion-capa span {
+  transition: color 0.2s;
+}
+
+.opcion-capa:hover span {
+  color: #ffffff; /* Brillo al posarse encima */
+}
+
+
+/* ESTILOS PARA LOS ICONOS DE CASITA (CAPITALES PROVINCIALES) */
+/* ESTILOS PARA LOS ICONOS VECTORIALES (SVG) DE LAS CAPITALES */
+.contenedor-icono-capital {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.svg-capital {
+  cursor: pointer;
+  filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.8)); /* Sombra intensa para contrastar sobre el satélite */
+  transition: transform 0.2s ease, filter 0.2s;
+}
+
+/* Diseño de las casitas: Relleno azul translúcido con borde cian */
+.svg-capital.casita {
+  fill: rgba(0, 180, 216, 0.4);   /* Azul agua con 40% de opacidad interna */
+  stroke: #00b4d8;                /* Borde cian nítido y brillante */
+  stroke-width: 1.5px;            /* Grosor de la línea del borde */
+}
+
+/* Diseño de la estrella de Quito: Destaca con un tono dorado traslúcido o cian intenso */
+.svg-capital.estrella {
+  fill: rgba(255, 234, 0, 0.45);  /* Relleno amarillo agua traslúcido */
+  stroke: #ffea00;                /* Contorno amarillo eléctrico brillante para que resalte como eje del país */
+  stroke-width: 1.5px;
+}
+
+/* Efectos visuales interactivos al posar el mouse (Hover) */
+.svg-capital:hover {
+  transform: scale(1.2);          /* Incremento de tamaño suave */
+}
+
+.svg-capital.casita:hover {
+  fill: rgba(144, 224, 239, 0.6); /* El relleno se vuelve más brillante y opaco */
+  stroke: #90e0ef;
+}
+
+.svg-capital.estrella:hover {
+  fill: rgba(255, 255, 255, 0.6);
+  stroke: #ffffff;
+}
+
+
+/* Estructura del interruptor deslizante (Switch) */
+.switch-humanitario {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.switch-humanitario input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(144, 224, 239, 0.3);
+  transition: .3s;
+  border-radius: 20px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 12px; width: 12px;
+  left: 3px; bottom: 3px;
+  background-color: #90e0ef;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+/* Estado activo del interruptor: cambia a color de alerta/acción */
+.switch-humanitario input:checked + .slider {
+  background-color: rgba(231, 76, 60, 0.2); /* Sutil tinte rojo de alerta */
+  border-color: #e74c3c;
+}
+
+.switch-humanitario input:checked + .slider:before {
+  transform: translateX(16px);
+  background-color: #e74c3c; /* Esfera roja brillante */
+}
+
+.contenedor-filtro-avanzado {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  
+  /* OPTIMIZACIÓN: Incrementamos el padding a 14px arriba/abajo y 15px a los lados */
+  padding: 5px 5px; 
+  
+  background: rgba(0, 8, 16, 0.2);
+  border-bottom: 1px solid rgba(0, 180, 216, 0.15);
+  
+  /* Espacio sutil de separación antes de que comiencen las tarjetas */
+  margin-bottom: 4px; 
+}
+
+
+/* ALINEACIÓN DEL LOGO CON EL TÍTULO EN LA CABECERA */
+.contenedor-logo-titulo {
+    display: flex;
+    align-items: center; /* Centrado vertical perfecto entre el texto y la imagen */
+    gap: 10px;          /* Espacio de separación horizontal entre el logo y el texto H3 */
+}
+
+
+.contenedor-logo-titulo h3 {    
+    font-family: 'Comfortaa', sans-serif;
+    font-weight: 700;       /* Hace la letra más gruesa, estilo Bold */
+    color: #00b4d8; 
+    font-size: 2rem;        /* Tamaño del texto ajustable */
+}
+
+.logo-cabecera {
+  height: 40px;       /* Altura estilizada y compacta para que combine con el tamaño de letra 1.2rem del H3 */
+  width: auto;        /* Mantiene la proporción original del ancho del logotipo */
+  object-fit: contain;
+  user-select: none;  /* Evita que el usuario arrastre la imagen sin querer */
+  filter: drop-shadow(0px 1px 3px rgba(0, 180, 216, 0.2)); /* Destello cian muy suave de fondo */
+}
+
+
+
+/* ETIQUETAS FLOTANTES DE LAS PROVINCIAS (TOOLTIPS DE LEAFLET) */
+.leaflet-tooltip-socialwater {
+  background: rgba(11, 28, 44, 0.94) !important; /* Azul océano profundo traslúcido */
+  border: 1px solid rgba(0, 180, 216, 0.5) !important; /* Borde cian sutil */
+  border-radius: 4px !important;
+  color: #ffffff !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 5px 10px !important;
+  box-shadow: 0 4px 15px rgba(0, 20, 38, 0.6) !important;
+  
+  /* CORRECCIÓN DE ANIMACIÓN: 
+     Dejamos que Leaflet maneje la visibilidad y usamos transiciones nativas 
+     sobre el renderizado del contenedor sin forzar opacidad cero con important. */
+  transition: opacity 0.2s ease-in-out, transform 0.1s ease-out;
+  pointer-events: none;
+}
+
+/* Quita la flecha triangular por defecto para conservar la estética minimalista */
+.leaflet-tooltip-socialwater::before {
+  display: none !important;
+}

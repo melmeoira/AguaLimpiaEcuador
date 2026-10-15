@@ -1,0 +1,130 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Quito", "tipo": "Capital de la República y Pichincha" },
+      "geometry": { "type": "Point", "coordinates": [-78.52495, -0.22985] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Guayaquil", "tipo": "Capital de Guayas" },
+      "geometry": { "type": "Point", "coordinates": [-79.90795, -2.20584] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Cuenca", "tipo": "Capital de Azuay" },
+      "geometry": { "type": "Point", "coordinates": [-79.00453, -2.90055] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Puyo", "tipo": "Capital de Pastaza (Región Amazónica)" },
+      "geometry": { "type": "Point", "coordinates": [-77.9991, -1.4837] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "El Coca", "tipo": "Capital de Orellana (Región Amazónica)" },
+      "geometry": { "type": "Point", "coordinates": [-76.9878, -0.4664] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Tena", "tipo": "Capital de Napo (Región Amazónica)" },
+      "geometry": { "type": "Point", "coordinates": [-77.8129, -0.9938] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Macas", "tipo": "Capital de Morona Santiago (Región Amazónica)" },
+      "geometry": { "type": "Point", "coordinates": [-78.1186, -2.3087] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Nueva Loja", "tipo": "Capital de Sucumbíos (Región Amazónica)" },
+      "geometry": { "type": "Point", "coordinates": [-76.8833, 0.0833] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Zamora", "tipo": "Capital de Zamora Chinchipe (Región Amazónica)" },
+      "geometry": { "type": "Point", "coordinates": [-78.9542, -4.0692] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Ambato", "tipo": "Capital de Tungurahua" },
+      "geometry": { "type": "Point", "coordinates": [-78.6167, -1.2417] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Riobamba", "tipo": "Capital de Chimborazo" },
+      "geometry": { "type": "Point", "coordinates": [-78.6542, -1.6742] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Latacunga", "tipo": "Capital de Cotopaxi" },
+      "geometry": { "type": "Point", "coordinates": [-78.6142, -0.9333] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Ibarra", "tipo": "Capital de Imbabura" },
+      "geometry": { "type": "Point", "coordinates": [-78.1222, 0.3517] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Tulcán", "tipo": "Capital de Carchi" },
+      "geometry": { "type": "Point", "coordinates": [-77.7172, 0.8119] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Loja", "tipo": "Capital de Loja" },
+      "geometry": { "type": "Point", "coordinates": [-79.2042, -3.9931] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Azogues", "tipo": "Capital de Cañar" },
+      "geometry": { "type": "Point", "coordinates": [-78.8483, -2.7397] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Guaranda", "tipo": "Capital de Bolívar" },
+      "geometry": { "type": "Point", "coordinates": [-79.0022, -1.5925] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Santo Domingo", "tipo": "Capital de Santo Domingo de los Tsáchilas" },
+      "geometry": { "type": "Point", "coordinates": [-79.1711, -0.2536] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Portoviejo", "tipo": "Capital de Manabí" },
+      "geometry": { "type": "Point", "coordinates": [-80.4544, -1.0547] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Manta", "tipo": "Ciudad Principal de Manabí" },
+      "geometry": { "type": "Point", "coordinates": [-80.7269, -0.9622] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Machala", "tipo": "Capital de El Oro" },
+      "geometry": { "type": "Point", "coordinates": [-79.9601, -3.2586] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Esmeraldas", "tipo": "Capital de Esmeraldas" },
+      "geometry": { "type": "Point", "coordinates": [-79.6524, 0.9668] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Babahoyo", "tipo": "Capital de Los Ríos" },
+      "geometry": { "type": "Point", "coordinates": [-79.5338, -1.8009] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Santa Elena", "tipo": "Capital de Santa Elena" },
+      "geometry": { "type": "Point", "coordinates": [-80.8594, -2.2261] }
+    },
+    {
+      "type": "Feature",
+      "properties": { "nombre": "Puerto Baquerizo Moreno", "tipo": "Capital de Galápagos (Región Insular)" },
+      "geometry": { "type": "Point", "coordinates": [-89.6094, -0.9022] }
+    }
+  ]
+}
