@@ -1,13 +1,10 @@
 const CACHE_NAME = 'social-water-v1';
 const ASSETS_TO_CACHE = [
-    '/',
-    '/index.html',
     '/css/estilo.css',
-    '/renderer.js',
-    '/comunidades.json',
-    '/ecuador.geojson',
-    '/capitales.geojson',
-    '/rios.geojson',
+    '/geojson/comunidades.json',
+    '/geojson/ecuador.geojson',
+    '/geojson/capitales.geojson',
+    '/geojson/rios_corregidos.geojson',
     '/js/leaflet/leaflet.css',
     '/js/leaflet/leaflet.js'
 ];
