@@ -7,11 +7,13 @@
         
         <link rel="icon" type="image/jpeg" href="/img/thesocialwater.jpg" />
 
-        <link rel="stylesheet" href="/js/leaflet/leaflet.css" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@2.0.0-alpha.1/dist/leaflet.css" />
         <script type="importmap">
-        {
-            "imports": { "leaflet": "/js/leaflet/leaflet.js" }
-        }
+            {
+                "imports": {
+                    "leaflet": "https://unpkg.com/leaflet@2.0.0-alpha.1/dist/leaflet.js"
+                }
+            }
         </script>
     
         <link rel="stylesheet" href="/css/estilo.css" />
@@ -46,22 +48,22 @@
             <!-- SECCIÓN DE FILTROS RÁPIDOS ACTUALIZADA CON CONTADORES -->
             <div class="contenedor-filtros">
                 <button class="btn-filtro activo" data-filtro="Todas">Todas <span id="count-Todas"></span></button>
-                <button class="btn-filtro" data-filtro="Óptima">Óptima <span id="count-Optima"></span></button>
-                <button class="btn-filtro" data-filtro="Alerta">Alerta <span id="count-Alerta"></span></button>
-                <button class="btn-filtro" data-filtro="Crítica">Crítica <span id="count-Critica"></span></button>
+                <button class="btn-filtro" data-filtro="recuperacion">En recuperación <span id="count-recup"></span></button>
+                <button class="btn-filtro" data-filtro="alerta">Alerta <span id="count-Alerta"></span></button>
+                <button class="btn-filtro" data-filtro="critica">Crítica <span id="count-Critica"></span></button>
             </div>
             <div class="contenedor-buscador">
                 <input type="text" id="input-busqueda" placeholder="Buscar comunidad o provincia..." autocomplete="off" />
             </div>
 
-            <!-- FILTRO AVANZADO HUMANITARIO (Nuevo) -->
+            <!-- FILTRO AVANZADO HUMANITARIO (Nuevo) 
             <div class="contenedor-filtro-avanzado">
                 <label class="switch-humanitario">
                     <input type="checkbox" id="chk-sin-filtros" />
                     <span class="slider"></span>
                 </label>
                 <span class="texto-filtro-avanzado">Mostrar solo comunidades sin filtros</span>
-            </div>
+            </div>-->
 
             <div id="lista-comunidades" class="lista-contenedor"></div>
         </div>

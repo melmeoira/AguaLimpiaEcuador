@@ -69,6 +69,10 @@ class SocialWaterMap {
      */
     configurarEventosMapa() {
         this.mapaInstancia.on('popupopen', (e) => {
+            const capa = e.popup._source;
+            if (capa && typeof capa.closeTooltip === 'function') {
+                capa.closeTooltip();
+            }
             const contenedorPopup = e.popup.getElement();
             if (!contenedorPopup) return;
 
@@ -197,32 +201,14 @@ class SocialWaterMap {
         const geojsonLayer = new GeoJSON(geojsonCapitales, {
             pointToLayer: (feature, latlng) => {
                 const esQuito = feature.properties && feature.properties.nombre === "Quito";
-                let htmlIcono = '';
-
-                if (esQuito) {
-                    htmlIcono = `
-                        <svg class="svg-capital estrella" viewBox="0 0 24 24" width="26" height="26">
-                            <polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9" />
-                        </svg>
-                    `;
-                } else {
-                    htmlIcono = `
-                        <svg class="svg-capital casita" viewBox="0 0 24 24" width="24" height="24">
-                            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                        </svg>
-                    `;
-                }
-
-                // Ajuste numérico preciso de dimensiones para la inyección del icono
-                const iconoPersonalizado = new DivIcon({
-                    html: htmlIcono,
-                    className: 'contenedor-icono-capital',
-                    iconSize: esQuito ? [26, 26] : [23, 23],
-                    iconAnchor: esQuito ? [13, 13] :[11, 11],
-                    popupAnchor: [0, -12]
+                return new CircleMarker(latlng, {
+                    radius: esQuito ? 6 : 4,      
+                    fillColor: esQuito ? '#0f0d0d': '#0f0d0d',
+                    color: esQuito ? '#ffffff': '#ffffff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.9
                 });
-
-                return new Marker(latlng, { icon: iconoPersonalizado });
             },
             onEachFeature: (feature, layer) => {
                 if (feature.properties && feature.properties.nombre) {
@@ -233,6 +219,12 @@ class SocialWaterMap {
                         </div>
                     `;
                     layer.bindPopup(contenido);
+
+                    layer.bindTooltip(feature.properties.nombre, {
+                        sticky: true,                    // Sigue el cursor de forma fluida
+                        direction: 'top',
+                        className: 'leaflet-tooltip-socialwater' // Estilo elegante unificado de la suite
+                    });
                 }
             }
         });
@@ -283,14 +275,34 @@ class SocialWaterMap {
      */
     inicializarComunidades(comunidades) {
         comunidades.forEach((comunidad, indexComunidad) => {
-            const marcador = new CircleMarker(comunidad.coordenadas, {
-                radius: 10,
-                fillColor: comunidad.color,
-                color: '#ffffff',
-                weight: 2,
-                opacity: 1,
-                fillOpacity: 0.9
+            const htmlCasitaComunidad = `
+                <svg class="svg-comunidad casita" viewBox="0 0 24 24" width="22" height="22">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" 
+                          fill="${this.getColorEstado(comunidad.estadoGeneral)}" 
+                          stroke="#ffffff" 
+                          stroke-width="1.5px" />
+                </svg>
+            `;
+
+            // 2. Instanciamos el DivIcon personalizado para Leaflet 2.0.0
+            const iconoCasita = new DivIcon({
+                html: htmlCasitaComunidad,
+                className: 'contenedor-icono-comunidad',
+                iconSize: [22, 22],
+                iconAnchor: [14, 14],
+                popupAnchor: [0, -14]
+            });
+
+            // 3. NUEVO: Usamos 'new Marker' en lugar del antiguo 'CircleMarker'
+            const marcador = new Marker(comunidad.coordenadas, {
+                icon: iconoCasita
             }).addTo(this.mapaInstancia);
+
+            marcador.bindTooltip(comunidad.nombre, {
+                sticky: true,
+                direction: 'top',
+                className: 'leaflet-tooltip-socialwater' // Reutiliza los estilos elegantes de las provincias
+            });
 
             let htmlFotos = '';
             if (comunidad.fotos && comunidad.fotos.length > 0) {
@@ -313,11 +325,13 @@ class SocialWaterMap {
                     (comunidad.parroquia !== ''
                         ? `<p style="margin: 0 0 3px 0; font-size: 11px;"><b>Parroquia:</b> ${comunidad.parroquia}</p>`
                         : '') +
-                    `<p style="margin: 0 0 3px 0; font-size: 11px;"><b>Tipo de agua:</b> ${comunidad.tipoAgua || 'N/A'}</p>
-                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>¿Tiene filtros?:</b> ${comunidad.tieneFiltro || 'No especificado'}</p>
-                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Nº de Familias:</b> ${comunidad.numFamilias || '0'}</p>
-                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Estado:</b> <span style="color: ${comunidad.color}; font-weight: bold;">${comunidad.estadoAgua}</span></p>
-                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>pH:</b> ${comunidad.ph} | <b>Turbidez:</b> ${comunidad.turbidez}</p>
+                    `<p style="margin: 0 0 3px 0; font-size: 11px;"><b>Coordenadas (lat/lon):</b> (${comunidad.coordenadas[0].toFixed(5)}, ${comunidad.coordenadas[1].toFixed(5)})</p>
+                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Fuentes hídricas:</b> ${comunidad.tipoAgua || 'N/A'}</p>                    
+                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Tipo de contaminación:</b> ${comunidad.tipoContaminacion || 'N/A'}</p>
+                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Riesgo:</b> ${comunidad.riesgo || 'N/A'}</p>
+                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Nº de Familias:</b> ${comunidad.numFamilias || 'N/A'}</p>
+                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Soluciones entregadas:</b> ${comunidad.numFamilias || 'N/A'}</p>                    
+                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Estado:</b> <span style="color: ${this.getColorEstado(comunidad.estadoGeneral)}; font-weight: bold;">${this.getTituloEstado(comunidad.estadoGeneral)}</span></p>
                     
                     <div class="contenedor-carrusel" id="carrusel-${indexComunidad}">
                         ${htmlFotos}
@@ -357,15 +371,15 @@ class SocialWaterMap {
      * Calcula dinámicamente e inyecta las cantidades en los botones de filtro
      */
     actualizarContadores(comunidades) {
-        let totales = { Todas: comunidades.length, Optima: 0, Alerta: 0, Critica: 0 };
+        let totales = { Todas: comunidades.length, recup: 0, Alerta: 0, Critica: 0 };
         comunidades.forEach(comunidad => {
-            const estado = comunidad.estadoAgua.trim().toLowerCase();
-            if (estado === "óptima" || estado === "optima") totales.Optima++;
+            const estado = comunidad.estadoGeneral.trim().toLowerCase();
+            if (estado === "recuperacion") totales.recup++;
             if (estado === "alerta") totales.Alerta++;
             if (estado === "crítica" || estado === "critica") totales.Critica++;
         });
         document.getElementById('count-Todas').textContent = `(${totales.Todas})`;
-        document.getElementById('count-Optima').textContent = `(${totales.Optima})`;
+        document.getElementById('count-recup').textContent = `(${totales.recup})`;
         document.getElementById('count-Alerta').textContent = `(${totales.Alerta})`;
         document.getElementById('count-Critica').textContent = `(${totales.Critica})`;
     }
@@ -403,6 +417,22 @@ class SocialWaterMap {
         }
     }
 
+    getColorEstado(estado){
+        switch(estado.toLowerCase()) {
+            case 'recuperacion':  return '#2ecc71';
+            case 'alerta':  return '#f1c40f';
+            case 'crítica': return '#e74c3c';                
+        }
+    }
+
+    getTituloEstado(estado){
+        switch(estado.toLowerCase()) {
+            case 'recuperacion':  return 'En recuperación';
+            case 'alerta':  return 'Alerta';
+            case 'crítica': return 'Crítica';                
+        }
+    }
+
     /**
      * Centraliza el triple cruce de filtros (Estado + Búsqueda Texto + Filtro avanzado)
      */
@@ -419,7 +449,9 @@ class SocialWaterMap {
             const comunidad = item.info;
             const marcador = item.marcadorMapa;
 
-            const cumpleFiltroEstado = (this.filtroActivo === "Todas" || comunidad.estadoAgua === this.filtroActivo);
+            let colorEstado = this.getColorEstado(comunidad.estadoGeneral?.toLowerCase());
+
+            const cumpleFiltroEstado = (this.filtroActivo === "Todas" || comunidad.estadoGeneral === this.filtroActivo);
             const cumpleBusquedaTexto = (
                 comunidad.nombre.toLowerCase().includes(textoBusqueda) || 
                 comunidad.provincia.toLowerCase().includes(textoBusqueda)
@@ -431,24 +463,20 @@ class SocialWaterMap {
 
                 const tarjetaHtml = document.createElement('div');
                 tarjetaHtml.className = 'tarjeta-comunidad';
-                tarjetaHtml.style.borderLeft = `5px solid ${comunidad.color}`;
+                tarjetaHtml.style.borderLeft = `5px solid ${colorEstado}`;
                 tarjetaHtml.innerHTML = `
                     <h5>${comunidad.nombre}` + 
                     (comunidad.pueblo !== ''
                         ? `<span style="font-size: 0.8rem;"> (Pueblo ${comunidad.pueblo})</span>`
                         : '') +
                     `</h5>
-                    <p style="margin: 0 0 4px 0;">Provincia: ${comunidad.provincia}` + 
-                    (comunidad.parroquia !== ''
-                        ? ` (Parroquia ${comunidad.parroquia})`
-                        : '') +
-                    `</p><p style="margin: 0 0 4px 0; font-size: 0.75rem;">Origen agua: <b>${comunidad.tipoAgua || 'N/A'}</b> | Familias: <b>${comunidad.numFamilias || 0}</b></p>
+                    <p style="margin: 0 0 4px 0;">Provincia: ${comunidad.provincia}</p>
+                    <span class="etiqueta-estado" style="background-color: ${this.getColorEstado(comunidad.estadoGeneral)}">${this.getTituloEstado(comunidad.estadoGeneral)}</span>
+                    <p style="margin: 0 0 4px 0; font-size: 0.75rem;">Familias: <b>${comunidad.numFamilias || 0}</b></p>
                     <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #caf0f8;">Filtros entregados: <b>${comunidad.tieneFiltro || 'No'}</b></p>
                     <div class="indicador">
-                        <span>pH: <b>${comunidad.ph}</b></span> | <span>Turbidez: <b>${comunidad.turbidez}</b></span>
-                    </div>
-                    <span class="etiqueta-estado" style="background-color: ${comunidad.color}">${comunidad.estadoAgua}</span>
-                `;
+                        <!--<span>pH: <b>${comunidad.ph}</b></span> | <span>Turbidez: <b>${comunidad.turbidez}</b></span>-->
+                    </div>`;
 
                 tarjetaHtml.addEventListener('click', () => {
                     this.mapaInstancia.setView(comunidad.coordenadas, 12);

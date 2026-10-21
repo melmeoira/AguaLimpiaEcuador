@@ -145,8 +145,8 @@ html, body {
 
 .etiqueta-estado {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 34px;
+  right: 9px;
   font-size: 0.7rem;
   font-weight: bold;
   padding: 2px 7px;
@@ -189,9 +189,9 @@ html, body {
 
 /* Clases de activación adaptadas a la nueva gama cromática fluida */
 .btn-filtro.activo[data-filtro="Todas"] { background: #0077b6; border-color: #0096c7; color: #ffffff; }
-.btn-filtro.activo[data-filtro="Óptima"] { background: #2ecc71; border-color: #27ae60; color: #000000; }
-.btn-filtro.activo[data-filtro="Alerta"] { background: #f1c40f; border-color: #f39c12; color: #000000; }
-.btn-filtro.activo[data-filtro="Crítica"] { background: #e74c3c; border-color: #c0392b; color: #ffffff; }
+.btn-filtro.activo[data-filtro="recuperacion"] { background: #2ecc71; border-color: #27ae60; color: #000000; }
+.btn-filtro.activo[data-filtro="alerta"] { background: #f1c40f; border-color: #f39c12; color: #000000; }
+.btn-filtro.activo[data-filtro="critica"] { background: #e74c3c; border-color: #c0392b; color: #ffffff; }
 
 .btn-filtro span {
   font-size: 0.7rem;
@@ -408,37 +408,41 @@ html, body {
   justify-content: center;
 }
 
-.svg-capital {
+.contenedor-icono-capital:hover {
+  transform: scale(1.2);          /* Incremento de tamaño suave */
+}
+
+.svg-comunidad {
   cursor: pointer;
   filter: drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.8)); /* Sombra intensa para contrastar sobre el satélite */
-  transition: transform 0.2s ease, filter 0.2s;
+
 }
 
 /* Diseño de las casitas: Relleno azul translúcido con borde cian */
-.svg-capital.casita {
+.svg-comunidad.casita {
   fill: rgba(0, 180, 216, 0.4);   /* Azul agua con 40% de opacidad interna */
   stroke: #00b4d8;                /* Borde cian nítido y brillante */
   stroke-width: 1.5px;            /* Grosor de la línea del borde */
 }
 
 /* Diseño de la estrella de Quito: Destaca con un tono dorado traslúcido o cian intenso */
-.svg-capital.estrella {
+.svg-comunidad.estrella {
   fill: rgba(255, 234, 0, 0.45);  /* Relleno amarillo agua traslúcido */
   stroke: #ffea00;                /* Contorno amarillo eléctrico brillante para que resalte como eje del país */
   stroke-width: 1.5px;
 }
 
 /* Efectos visuales interactivos al posar el mouse (Hover) */
-.svg-capital:hover {
+.svg-comunidad:hover {
   transform: scale(1.2);          /* Incremento de tamaño suave */
 }
 
-.svg-capital.casita:hover {
+.svg-comunidad.casita:hover {
   fill: rgba(144, 224, 239, 0.6); /* El relleno se vuelve más brillante y opaco */
   stroke: #90e0ef;
 }
 
-.svg-capital.estrella:hover {
+.svg-comunidad.estrella:hover {
   fill: rgba(255, 255, 255, 0.6);
   stroke: #ffffff;
 }
@@ -550,5 +554,14 @@ html, body {
 
 /* Quita la flecha triangular por defecto para conservar la estética minimalista */
 .leaflet-tooltip-socialwater::before {
+  display: none !important;
+}
+
+/* REGLA DE EXCLUSIÓN: Si el popup está abierto en el mapa, oculta el tooltip de inmediato */
+.leaflet-popup-open + .leaflet-tooltip-socialwater,
+.leaflet-marker-icon:has(+ .leaflet-popup-container) + .leaflet-tooltip-socialwater,
+.leaflet-zoom-animated:has(.leaflet-popup) .leaflet-tooltip-socialwater {
+  opacity: 0 !important;
+  visibility: hidden !important;
   display: none !important;
 }
