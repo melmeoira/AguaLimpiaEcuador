@@ -5,20 +5,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>The Social Water - Ecuador</title>
         
-        <link rel="icon" type="image/jpeg" href="/img/thesocialwater.jpg" />
+        <link rel="icon" type="image/jpeg" href="./img/thesocialwater.jpg" />
 
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@2.0.0-alpha.1/dist/leaflet.css" />
+        <link rel="stylesheet" href="./js/leaflet/leaflet.css" />
         <script type="importmap">
-            {
-                "imports": {
-                    "leaflet": "https://unpkg.com/leaflet@2.0.0-alpha.1/dist/leaflet.js"
-                }
-            }
+        {
+            "imports": { "leaflet": "./js/leaflet/leaflet.js" }
+        }
         </script>
     
-        <link rel="stylesheet" href="/css/estilo.css" />
+        <link rel="stylesheet" href="./css/estilo.css" />
 
-        <script type="module" src="js/renderer.js"></script>
+        <script type="module" src="./js/renderer.js"></script>
     </head>
     <body>
         <div id="map"></div>

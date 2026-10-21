@@ -555,13 +555,13 @@ class SocialWaterMap {
 window.onload = () => {
     // Registra el Service Worker de forma segura si el navegador lo soporta
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/js/sw.js')
-            .then((registration) => {
-                console.log('Servicio de Caché (Service Worker) activo con éxito en el ámbito:', registration.scope);
-            })
-            .catch((error) => {
-                console.error('Fallo al inicializar el servicio de caché offline:', error);
-            });
+        navigator.serviceWorker.register('./js/sw.js')
+        .then((registration) => {
+            console.log('Servicio de Caché (Service Worker) activo con éxito en el ámbito:', registration.scope);
+        })
+        .catch((error) => {
+            console.error('Fallo al inicializar el servicio de caché offline:', error);
+        });
     }
 
     // Instancia el mapa estructurado en POO
