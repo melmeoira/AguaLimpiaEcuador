@@ -79,7 +79,7 @@ html, body {
 
 .lista-contenedor {
   padding: 15px;
-  max-height: 290px;
+  max-height: 150px;
   overflow-y: auto;
   flex-grow: 1;
 }

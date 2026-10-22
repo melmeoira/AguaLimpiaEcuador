@@ -472,11 +472,7 @@ class SocialWaterMap {
                     `</h5>
                     <p style="margin: 0 0 4px 0;">Provincia: ${comunidad.provincia}</p>
                     <span class="etiqueta-estado" style="background-color: ${this.getColorEstado(comunidad.estadoGeneral)}">${this.getTituloEstado(comunidad.estadoGeneral)}</span>
-                    <p style="margin: 0 0 4px 0; font-size: 0.75rem;">Familias: <b>${comunidad.numFamilias || 0}</b></p>
-                    <p style="margin: 0 0 8px 0; font-size: 0.75rem; color: #caf0f8;">Filtros entregados: <b>${comunidad.tieneFiltro || 'No'}</b></p>
-                    <div class="indicador">
-                        <!--<span>pH: <b>${comunidad.ph}</b></span> | <span>Turbidez: <b>${comunidad.turbidez}</b></span>-->
-                    </div>`;
+                    <p style="margin: 0 0 4px 0; font-size: 0.75rem;">Familias: <b>${comunidad.numFamilias || 0}</b></p>`;
 
                 tarjetaHtml.addEventListener('click', () => {
                     this.mapaInstancia.setView(comunidad.coordenadas, 12);
