@@ -1,13 +1,15 @@
-import { LeafletMap, TileLayer, GeoJSON, CircleMarker, LayerGroup, DivIcon, Marker } from 'leaflet';
+import { LeafletMap, TileLayer, GeoJSON, CircleMarker, LayerGroup, DivIcon, Marker, LatLngBounds  } from 'leaflet';
 
 class SocialWaterMap {
     // Propiedades estáticas de configuración de la clase
-    static LIMITES_CONTINENTE = [ [-3.01, -78.10], [1.4, -75.15]];
+    static LIMITES_CONTINENTE = [ [-5.01, -81.08], [1.65, -75.19] ];
 
     static OPCIONES_ENCUADRE = {
-        padding: { x: 15, y: 30 },
-        maxZoom: 7
+        paddingTopLeft: [-230,0],  
+        maxZoom: 7,                 // Evitamos un acercamiento excesivo en pantallas pequeñas
+        animate: true               // Suaviza la transición inicial
     };
+
 
     constructor() {
         // Inicialización de las propiedades de control de la instancia
@@ -96,6 +98,8 @@ class SocialWaterMap {
      * Dibuja y encuadra los límites de la frontera del país
      */
     procesarCapaFrontera(datosFrontera) {
+        const limitesContinentales = new LatLngBounds();
+
         const capaFrontera = new GeoJSON(datosFrontera, {
             style: () => ({
                 color: '#000',
@@ -115,6 +119,16 @@ class SocialWaterMap {
                         direction: 'top',
                         className: 'leaflet-tooltip-socialwater' // Aplicamos nuestros estilos CSS con animación
                     });
+                }
+
+                const limitesProvincia = layer.getBounds();
+                const esGalapagos = (nombreProvincia && nombreProvincia.toLowerCase().includes("galápagos")) || 
+                                    (nombreProvincia && nombreProvincia.toLowerCase().includes("galapagos")) ||
+                                    (limitesProvincia.getWest() < -83);
+
+                // Si está dentro de la sección continental, expandimos el contenedor de límites
+                if (!esGalapagos) {
+                    limitesContinentales.extend(limitesProvincia);
                 }
 
                 // Eventos visuales de realce al pasar el ratón sobre el polígono
@@ -141,8 +155,7 @@ class SocialWaterMap {
         });
         capaFrontera.addTo(this.mapaInstancia);
 
-        // Encuadre continental inicial óptimo
-        this.mapaInstancia.fitBounds(SocialWaterMap.LIMITES_CONTINENTE, SocialWaterMap.OPCIONES_ENCUADRE);
+        this.mapaInstancia.fitBounds(limitesContinentales, SocialWaterMap.OPCIONES_ENCUADRE);
 
         // Configuración del botón Home de regreso al continente
         const botonHome = document.getElementById('btn-home');
