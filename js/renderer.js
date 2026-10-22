@@ -38,6 +38,8 @@ class SocialWaterMap {
             maxNativeZoom: 17
         }).addTo(this.mapaInstancia);
 
+        this.configurarInteractividadIframe();
+
         // Registro de los gestores seguros de eventos globales del mapa y modal
         this.configurarEventosMapa();
         this.configurarCierreModal();
@@ -551,6 +553,22 @@ class SocialWaterMap {
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && modal.classList.contains('visible')) {
                 modal.classList.remove('visible');
+            }
+        });
+    }
+
+    configurarInteractividadIframe() {
+        // Al hacer clic dentro del mapa, se activa la rueda para poder hacer zoom
+        this.mapaInstancia.on('click', () => {
+            if (this.mapaInstancia.scrollWheelZoom) {
+                this.mapaInstancia.scrollWheelZoom.enable();
+            }
+        });
+
+        // Al sacar el cursor del mapa, se vuelve a bloquear para permitir el scroll de WordPress
+        this.mapaInstancia.on('mouseout', () => {
+            if (this.mapaInstancia.scrollWheelZoom) {
+                this.mapaInstancia.scrollWheelZoom.disable();
             }
         });
     }
