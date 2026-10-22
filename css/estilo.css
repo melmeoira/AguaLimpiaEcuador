@@ -165,33 +165,10 @@ html, body {
   border-bottom: 1px solid rgba(0, 180, 216, 0.2);
 }
 
-.btn-filtro {
-  flex: 1;
-  padding: 6px 4px;
-  font-size: 0.75rem;
-  font-weight: bold;
-  border: 1px solid rgba(144, 224, 239, 0.2);
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.03);
-  color: #e0f2fe;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-  white-space: nowrap; 
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
 .btn-filtro:hover {
   background: rgba(0, 180, 216, 0.15);
   border-color: rgba(0, 180, 216, 0.5);
 }
-
-/* Clases de activación adaptadas a la nueva gama cromática fluida */
-.btn-filtro.activo[data-filtro="Todas"] { background: #0077b6; border-color: #0096c7; color: #ffffff; }
-.btn-filtro.activo[data-filtro="recuperacion"] { background: #2ecc71; border-color: #27ae60; color: #000000; }
-.btn-filtro.activo[data-filtro="alerta"] { background: #f1c40f; border-color: #f39c12; color: #000000; }
-.btn-filtro.activo[data-filtro="critica"] { background: #e74c3c; border-color: #c0392b; color: #ffffff; }
 
 .btn-filtro span {
   font-size: 0.7rem;
@@ -204,9 +181,7 @@ html, body {
 
 /* BARRA DE BÚSQUEDA */
 .contenedor-buscador {
-  padding: 10px 15px;
-  background: rgba(0, 8, 16, 0.15);
-  border-bottom: 1px solid rgba(0, 180, 216, 0.15);
+  padding-left: 5px;
 }
 
 #input-busqueda {
@@ -564,4 +539,40 @@ html, body {
   opacity: 0 !important;
   visibility: hidden !important;
   display: none !important;
+}
+
+
+/* DISEÑO DEL COMBOBOX INTEGRADO (NUEVO) */
+.contenedor-filtros {
+  padding: 10px 15px;
+  background: rgba(0, 12, 24, 0.3);
+  border-bottom: 1px solid rgba(0, 180, 216, 0.2);
+}
+
+.combo-filtro {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  background: rgba(11, 28, 44, 0.8); /* Fondo azul marino profundo traslúcido */
+  border: 1px solid rgba(144, 224, 239, 0.25);
+  border-radius: 4px;
+  color: #ffffff;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.combo-filtro:focus, .combo-filtro:hover {
+  border-color: #00b4d8; /* Resaltado cian de la suite */
+  box-shadow: 0 0 6px rgba(0, 180, 216, 0.3);
+}
+
+/* Estilos para las opciones desplegadas (Depende del soporte del navegador) */
+.combo-filtro option {
+  background: #0b1c2c;
+  color: #ffffff;
+  font-weight: normal;
+  padding: 8px;
 }

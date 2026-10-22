@@ -378,29 +378,28 @@ class SocialWaterMap {
             if (estado === "alerta") totales.Alerta++;
             if (estado === "crítica" || estado === "critica") totales.Critica++;
         });
-        document.getElementById('count-Todas').textContent = `(${totales.Todas})`;
-        document.getElementById('count-recup').textContent = `(${totales.recup})`;
-        document.getElementById('count-Alerta').textContent = `(${totales.Alerta})`;
-        document.getElementById('count-Critica').textContent = `(${totales.Critica})`;
+        const select = document.getElementById('select-filtro');
+        if (select) {
+            select.options[0].textContent = `Todas (${totales.Todas})`;
+            select.options[1].textContent = `En recuperación (${totales.recup})`;
+            select.options[2].textContent = `Alerta (${totales.Alerta})`;
+            select.options[3].textContent = `Crítica (${totales.Critica})`;
+        }
     }
 
     /**
-     * Activa la escucha de los eventos click de los filtros rápidos de estado
+     * Activa la escucha del evento de cambio de opción (change) en el ComboBox
      */
     configurarFiltros() {
-        const botones = document.querySelectorAll('.btn-filtro');
-        botones.forEach(boton => {
-            boton.addEventListener('click', (e) => {
-                botones.forEach(btn => btn.classList.remove('activo'));
-                const botonObjetivo = e.target.closest('.btn-filtro');
-                if (botonObjetivo) {
-                    botonObjetivo.classList.add('activo');
-                    this.filtroActivo = botonObjetivo.getAttribute('data-filtro');
-                    this.filtrarYMostrar();
-                }
+        const selectFiltro = document.getElementById('select-filtro');
+        if (selectFiltro) {
+            selectFiltro.addEventListener('change', (e) => {
+                this.filtroActivo = e.target.value;
+                this.filtrarYMostrar();
             });
-        });
+        }
     }
+
 
     /**
      * Activa la escucha en tiempo real de la barra de búsqueda y del switch humanitario

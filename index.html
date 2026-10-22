@@ -35,24 +35,26 @@
             <div class="contenedor-capas-interno">
                 <label class="opcion-capa">
                     <input type="checkbox" id="chk-capitales" checked />
-                    <span>Capitales Provinciales</span>
-                </label>
-                <label class="opcion-capa">
+                    <span>Capitales&nbsp;&nbsp;</span>    
                     <input type="checkbox" id="chk-rios" />
-                    <span>Ríos Principales</span>
+                    <span>Ríos</span>
+                    <div class="contenedor-buscador">
+                        <input type="text" id="input-busqueda" placeholder="Buscar comunidad..." autocomplete="off" />
+                    </div>
                 </label>
+                
             </div>
 
             <!-- SECCIÓN DE FILTROS RÁPIDOS ACTUALIZADA CON CONTADORES -->
             <div class="contenedor-filtros">
-                <button class="btn-filtro activo" data-filtro="Todas">Todas <span id="count-Todas"></span></button>
-                <button class="btn-filtro" data-filtro="recuperacion">En recuperación <span id="count-recup"></span></button>
-                <button class="btn-filtro" data-filtro="alerta">Alerta <span id="count-Alerta"></span></button>
-                <button class="btn-filtro" data-filtro="critica">Crítica <span id="count-Critica"></span></button>
+                <select id="select-filtro" class="combo-filtro">
+                    <option value="Todas" selected>Todas </option>
+                    <option value="recuperacion">En recuperación </option>
+                    <option value="alerta">Alerta </option>
+                    <option value="critica">Crítica </option>
+                </select>
             </div>
-            <div class="contenedor-buscador">
-                <input type="text" id="input-busqueda" placeholder="Buscar comunidad o provincia..." autocomplete="off" />
-            </div>
+            
 
             <!-- FILTRO AVANZADO HUMANITARIO (Nuevo) 
             <div class="contenedor-filtro-avanzado">
