@@ -58,7 +58,7 @@ html, body {
 }
 
 .cabecera-panel {
-  padding: 15px;
+  padding: 10px;
   background: rgba(0, 119, 182, 0.15); /* Tinte azul agua */
   border-bottom: 1px solid rgba(0, 180, 216, 0.3);
 }
@@ -71,15 +71,15 @@ html, body {
 }
 
 .cabecera-panel p {
-  margin: 5px 0 0 0;
+  margin: 2px 0 0 0;
   font-size: 0.85rem;
   color: #90e0ef; /* Azul claro suave para la descripción */
   opacity: 0.8;
 }
 
 .lista-contenedor {
-  padding: 15px;
-  max-height: 150px;
+  padding: 9px;
+  max-height: 160px;
   overflow-y: auto;
   flex-grow: 1;
 }
@@ -103,9 +103,9 @@ html, body {
 .tarjeta-comunidad {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(144, 224, 239, 0.1);
-  padding: 12px;
+  padding: 7px;
   border-radius: 6px;
-  margin-bottom: 12px;
+  margin-bottom: 5px;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
@@ -342,7 +342,7 @@ html, body {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 12px 15px;
+  padding: 6px 9px;
   background: rgba(0, 8, 16, 0.25);
   border-bottom: 1px solid rgba(0, 180, 216, 0.2);
 }
@@ -489,7 +489,7 @@ html, body {
 .contenedor-logo-titulo {
     display: flex;
     align-items: center; /* Centrado vertical perfecto entre el texto y la imagen */
-    gap: 10px;          /* Espacio de separación horizontal entre el logo y el texto H3 */
+    gap: 5px;          /* Espacio de separación horizontal entre el logo y el texto H3 */
 }
 
 
@@ -501,7 +501,7 @@ html, body {
 }
 
 .logo-cabecera {
-  height: 40px;       /* Altura estilizada y compacta para que combine con el tamaño de letra 1.2rem del H3 */
+  height: 33px;       /* Altura estilizada y compacta para que combine con el tamaño de letra 1.2rem del H3 */
   width: auto;        /* Mantiene la proporción original del ancho del logotipo */
   object-fit: contain;
   user-select: none;  /* Evita que el usuario arrastre la imagen sin querer */
@@ -544,7 +544,7 @@ html, body {
 
 /* DISEÑO DEL COMBOBOX INTEGRADO (NUEVO) */
 .contenedor-filtros {
-  padding: 10px 15px;
+  padding: 5px 9px;
   background: rgba(0, 12, 24, 0.3);
   border-bottom: 1px solid rgba(0, 180, 216, 0.2);
 }
