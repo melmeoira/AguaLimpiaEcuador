@@ -201,6 +201,8 @@ class SocialWaterMap {
                 btnExcel.addEventListener('click', () => {
                     const nombreLimpio = comunidadObjeto.nombre.replace(/\s+/g, '_');
 
+                    const urlLogoSocialWater = "./img/thesocialwater.jpg"; 
+
                     // 1. Estructuramos el bloque de títulos corporativos idénticos al PDF
                     const estructuraInforme = [
                         ["FICHA TÉCNICA DE COMUNIDAD"],
@@ -218,6 +220,7 @@ class SocialWaterMap {
                             'Tipo Contaminación', 
                             'Nivel de Riesgo', 
                             'Nº de Familias', 
+                            'Soluciones entregadas', 
                             'Estado General'
                         ],
                         // 3. Fila con los valores de la comunidad activa
@@ -232,6 +235,7 @@ class SocialWaterMap {
                             comunidadObjeto.tipoContaminacion || 'N/A',
                             comunidadObjeto.riesgo || 'N/A',
                             comunidadObjeto.numFamilias || 0,
+                            comunidadObjeto.solucionesEntregadas || 0,
                             this.getTituloEstado(comunidadObjeto.estadoGeneral)
                         ]
                     ];
