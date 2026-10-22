@@ -208,7 +208,7 @@ class SocialWaterMap {
                         'Nivel de Riesgo': comunidadObjeto.riesgo || 'N/A',
                         'Nº de Familias': comunidadObjeto.numFamilias || 0,
                         'Soluciones entregadas': comunidadObjeto.solucionesEntregadas || 0,
-                        'Estado General': comunidadObjeto.estadoGeneral
+                        'Estado General': this.getTituloEstado(comunidadObjeto.estadoGeneral)
                     }];
 
                     // Operaciones con la API nativa de SheetJS (XLSX)
