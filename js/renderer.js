@@ -195,32 +195,58 @@ class SocialWaterMap {
 
                 // ================= ACCIÓN: EXPORTAR A EXCEL (XLSX) =================
                 btnExcel.addEventListener('click', () => {
-                    // Mapeamos el objeto JSON plano a columnas legibles para la hoja de cálculo
-                    const datosFila = [{
-                        'Comunidad': comunidadObjeto.nombre,
-                        'Pueblo / Etnia': comunidadObjeto.pueblo || 'N/A',
-                        'Provincia': comunidadObjeto.provincia,
-                        'Parroquia': comunidadObjeto.parroquia || 'N/A',
-                        'Latitud': comunidadObjeto.coordenadas[0],
-                        'Longitud': comunidadObjeto.coordenadas[1],
-                        'Fuentes Hídricas': comunidadObjeto.tipoAgua || 'N/A',
-                        'Tipo Contaminación': comunidadObjeto.tipoContaminacion || 'N/A',
-                        'Nivel de Riesgo': comunidadObjeto.riesgo || 'N/A',
-                        'Nº de Familias': comunidadObjeto.numFamilias || 0,
-                        'Soluciones entregadas': comunidadObjeto.solucionesEntregadas || 0,
-                        'Estado General': this.getTituloEstado(comunidadObjeto.estadoGeneral)
-                    }];
+                    const nombreLimpio = comunidadObjeto.nombre.replace(/\s+/g, '_');
 
-                    // Operaciones con la API nativa de SheetJS (XLSX)
-                    const hojaTrabajo = XLSX.utils.json_to_sheet(datosFila);
+                    // 1. Estructuramos el bloque de títulos corporativos idénticos al PDF
+                    const estructuraInforme = [
+                        ["FICHA TÉCNICA DE COMUNIDAD"],
+                        ["Proyecto The Social Water - ENTSA SHIRAM"],
+                        [], // Fila vacía de separación estética
+                        // 2. Encabezados de las columnas de datos
+                        [
+                            'Comunidad', 
+                            'Pueblo / Etnia', 
+                            'Provincia', 
+                            'Parroquia', 
+                            'Latitud', 
+                            'Longitud', 
+                            'Fuentes Hídricas', 
+                            'Tipo Contaminación', 
+                            'Nivel de Riesgo', 
+                            'Nº de Familias', 
+                            'Estado General'
+                        ],
+                        // 3. Fila con los valores de la comunidad activa
+                        [
+                            comunidadObjeto.nombre,
+                            comunidadObjeto.pueblo || 'N/A',
+                            comunidadObjeto.provincia,
+                            comunidadObjeto.parroquia || 'N/A',
+                            comunidadObjeto.coordenadas[0],
+                            comunidadObjeto.coordenadas[1],
+                            comunidadObjeto.tipoAgua || 'N/A',
+                            comunidadObjeto.tipoContaminacion || 'N/A',
+                            comunidadObjeto.riesgo || 'N/A',
+                            comunidadObjeto.numFamilias || 0,
+                            this.getTituloEstado(comunidadObjeto.estadoGeneral)
+                        ]
+                    ];
+
+                    // 4. Operaciones nativas con la API de SheetJS (XLSX)
+                    // Convertimos nuestra matriz de filas ordenadas directamente en una hoja de trabajo
+                    const hojaTrabajo = XLSX.utils.aoa_to_sheet(estructuraInforme);
                     const libroTrabajo = XLSX.utils.book_new();
                     
-                    XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, 'Datos Comunidad');
+                    XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, 'Ficha Comunidad');
                     
-                    // Ajuste automático básico del ancho de las columnas
-                    hojaTrabajo['!cols'] = Object.keys(datosFila[0]).map(key => ({ wch: Math.max(key.length + 4, 15) }));
+                    // 5. Ajuste automático dinámico del ancho de las columnas (basado en la fila de datos)
+                    hojaTrabajo['!cols'] = estructuraInforme[3].map((titulo, i) => {
+                        const valorCelda = String(estructuraInforme[4][i] || '');
+                        const largoMaximo = Math.max(titulo.length, valorCelda.length);
+                        return { wch: largoMaximo + 4 }; // Añadimos un colchón de 4 caracteres por columna
+                    });
 
-                    // Lanzar la descarga del binario Excel
+                    // Lanzar la descarga del binario de Excel estructurado
                     XLSX.writeFile(libroTrabajo, `Datos_TheSocialWater_${nombreLimpio}.xlsx`);
                 });
             }
