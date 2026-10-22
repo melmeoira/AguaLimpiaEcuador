@@ -207,8 +207,7 @@ class SocialWaterMap {
                     const estructuraInforme = [
                         ["FICHA TÉCNICA DE COMUNIDAD"],
                         ["Proyecto The Social Water - ENTSA SHIRAM"],
-                        [], // Fila vacía de separación estética
-                        // 2. Encabezados de las columnas de datos
+                        [],
                         [
                             'Comunidad', 
                             'Pueblo / Etnia', 
@@ -223,7 +222,6 @@ class SocialWaterMap {
                             'Soluciones entregadas', 
                             'Estado General'
                         ],
-                        // 3. Fila con los valores de la comunidad activa
                         [
                             comunidadObjeto.nombre,
                             comunidadObjeto.pueblo || 'N/A',
@@ -243,13 +241,12 @@ class SocialWaterMap {
                     // 4. Operaciones nativas con la API de SheetJS (XLSX)
                     // Convertimos nuestra matriz de filas ordenadas directamente en una hoja de trabajo
                     const hojaTrabajo = XLSX.utils.aoa_to_sheet(estructuraInforme);
-                    const libroTrabajo = XLSX.utils.book_new();
-                    
+                    const libroTrabajo = XLSX.utils.book_new();                    
                     
                     XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, 'Ficha Comunidad');
                     
                     // 5. Ajuste automático dinámico del ancho de las columnas (basado en la fila de datos)
-                    hojaTrabajo['!cols'] = estructuraInforme[3].map((titulo, i) => {
+                    const anchosColumnas = estructuraInforme[3].map((titulo, i) => {
                         const valorCelda = String(estructuraInforme[4][i] || '');
                         const largoMaximo = Math.max(titulo.length, valorCelda.length);
                         return { wch: largoMaximo + 4 }; // Añadimos un colchón de 4 caracteres por columna
