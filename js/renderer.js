@@ -2,10 +2,7 @@ import { LeafletMap, TileLayer, GeoJSON, CircleMarker, LayerGroup, DivIcon, Mark
 
 class SocialWaterMap {
     // Propiedades estáticas de configuración de la clase
-    static LIMITES_CONTINENTE = [
-        [-5.01, -81.10],
-        [1.45, -75.15]
-    ];
+    static LIMITES_CONTINENTE = [ [-7.01, -78.10], [1.45, -75.15]];
 
     static OPCIONES_ENCUADRE = {
         padding: { x: 30, y: 30 },
