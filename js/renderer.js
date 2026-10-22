@@ -148,9 +148,13 @@ class SocialWaterMap {
                     const estructuraHtmlPlana = `
                         <div style="padding: 25px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.5; background-color: #ffffff;">
                             <!-- Encabezado con color corporativo unificado del mapa -->
-                            <div style="border-bottom: 3px solid #0077b6; padding-bottom: 10px; margin-bottom: 20px;">
-                                <h1 style="margin: 0; color: #0077b6; font-size: 24px; font-weight: bold;">Ficha Técnica de Comunidad</h1>
-                                <p style="margin: 5px 0 0 0; color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Proyecto The Social Water - ENTSA SHIRAM</p>
+                            <div style="border-bottom: 3px solid #0077b6; padding-bottom: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <h1 style="margin: 0; color: #0077b6; font-size: 24px; font-weight: bold;">Ficha Técnica de Comunidad</h1>
+                                    <p style="margin: 5px 0 0 0; color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Proyecto The Social Water - ENTSA SHIRAM</p>
+                                </div>
+                                <!-- Logotipo oficial de The Social Water -->
+                                <img src="./img/thesocialwater.jpg" style="width: 55px; height: 55px; object-fit: contain; margin-left: 15px;" alt="Logo The Social Water">
                             </div>
 
                             <!-- Bloque de Información Principal -->
@@ -236,6 +240,7 @@ class SocialWaterMap {
                     // Convertimos nuestra matriz de filas ordenadas directamente en una hoja de trabajo
                     const hojaTrabajo = XLSX.utils.aoa_to_sheet(estructuraInforme);
                     const libroTrabajo = XLSX.utils.book_new();
+                    
                     
                     XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, 'Ficha Comunidad');
                     
