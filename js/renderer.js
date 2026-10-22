@@ -1,5 +1,6 @@
 import { LeafletMap, TileLayer, GeoJSON, CircleMarker, LayerGroup, DivIcon, Marker, LatLngBounds  } from 'leaflet';
 
+
 class SocialWaterMap {
     // Propiedades estáticas de configuración de la clase
     static LIMITES_CONTINENTE = [ [-5.01, -81.08], [1.65, -75.19] ];
@@ -52,6 +53,7 @@ class SocialWaterMap {
             fetch('geojson/rios_corregidos.geojson').then(res => { if (!res.ok) throw new Error(); return res.json(); })
         ])
         .then(([datosFrontera, datosComunidades, datosCapitales, datosRios]) => {
+            datosComunidades.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }));
             this.procesarCapaFrontera(datosFrontera);
             this.inicializarCapasSecundarias(datosCapitales, datosRios);
             this.inicializarControlesCapas();
@@ -76,6 +78,152 @@ class SocialWaterMap {
             }
             const contenedorPopup = e.popup.getElement();
             if (!contenedorPopup) return;
+
+            // ================= GESTIÓN DE COPIADO DE COORDENADAS =================
+            const elementoCoords = contenedorPopup.querySelector('.coordenadas-copiables');
+            if (elementoCoords) {
+                elementoCoords.addEventListener('click', () => {
+                    const textoCoordenadas = elementoCoords.getAttribute('data-coords');
+                    
+                    // Usamos la API moderna del portapapeles de JavaScript
+                    navigator.clipboard.writeText(textoCoordenadas).then(() => {
+                        // Guardamos el texto original para poder restaurarlo
+                        const textoOriginal = elementoCoords.innerHTML;
+                        
+                        // Cambiamos temporalmente el diseño para mostrar el aviso de éxito
+                        elementoCoords.style.color = '#2ecc71';
+                        elementoCoords.style.fontWeight = 'bold';
+                        elementoCoords.innerHTML = '¡Coordenadas copiadas con éxito! ✓';
+                        
+                        // A los 2 segundos restauramos el texto original con una transición suave
+                        setTimeout(() => {
+                            elementoCoords.style.color = '';
+                            elementoCoords.style.fontWeight = '';
+                            elementoCoords.innerHTML = textoOriginal;
+                        }, 2000);
+                    }).catch(err => {
+                        console.error('Error al copiar al portapapeles: ', err);
+                    });
+                });
+            }
+
+            const btnPdf = contenedorPopup.querySelector('.btn-exportar-pdf');
+            const btnExcel = contenedorPopup.querySelector('.btn-exportar-excel');
+            
+            if (btnPdf && btnExcel) {
+                const indiceComunidad = btnPdf.getAttribute('data-index');
+                const comunidadObjeto = this.listaComunidadesGlobal[indiceComunidad].info;
+                const nombreLimpio = comunidadObjeto.nombre.replace(/\s+/g, '_');
+
+                // ================= ACCIÓN: EXPORTAR A PDF =================
+                btnPdf.addEventListener('click', () => {
+                    const listaFotos = (comunidadObjeto.fotos || []).slice(0, 4);
+                    let seccionFotograficaHtml = '';
+
+                    if (listaFotos.length > 0) {
+                        seccionFotograficaHtml = `
+                            <div style="margin-top: 10px;">
+                                <p style="margin: 0 0 7px 0; font-size: 11px; color: #666; font-style: italic; border-bottom: 1px solid #eee; padding-bottom: 4px; page-break-inside: avoid;">
+                                    Evidencias fotográficas registradas en campo (${listaFotos.length}):
+                                </p>
+                                <!-- Contenedor en cuadrícula fluida -->
+                                <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between;">` + 
+                                    listaFotos.map((rutaFoto) => `
+                                        <div style="border: 1px solid #e0e0e0; padding: 4px; border-radius: 4px; background-color: #fcfcfc; width: calc(50% - 6px); box-sizing: border-box; margin-bottom: 10px; page-break-inside: avoid; display: flex; flex-direction: column; justify-content: center; align-items: center;">                                            
+                                            <img src="${rutaFoto}" style="width: 100%; max-height: 220px; object-fit: contain; border-radius: 2px; display: block; background-color: #fafafa;" alt="Fotografía de la comunidad">
+                                        </div>
+                                    `).join('') +
+                                `</div>
+                            </div>
+                        `;
+                    } else {
+                        seccionFotograficaHtml = `
+                            <p style="font-size: 12px; color: #999; font-style: italic; margin-top: 10px; page-break-inside: avoid;">
+                                Sin registros fotográficos disponibles en esta ficha técnica.
+                            </p>
+                        `;
+                    }
+
+                    // 3. Diseñamos una maqueta estática ideal para un folio A4 sin animaciones que rompan la librería
+                    const estructuraHtmlPlana = `
+                        <div style="padding: 25px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.5; background-color: #ffffff;">
+                            <!-- Encabezado con color corporativo unificado del mapa -->
+                            <div style="border-bottom: 3px solid #0077b6; padding-bottom: 10px; margin-bottom: 20px;">
+                                <h1 style="margin: 0; color: #0077b6; font-size: 24px; font-weight: bold;">Ficha Técnica de Comunidad</h1>
+                                <p style="margin: 5px 0 0 0; color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Proyecto The Social Water - ENTSA SHIRAM</p>
+                            </div>
+
+                            <!-- Bloque de Información Principal -->
+                            <h2 style="margin: 0 0 10px 0; color: #0056b3; font-size: 20px;">${comunidadObjeto.nombre} ` + (comunidadObjeto.pueblo ? `(Pueblo ${comunidadObjeto.pueblo})` : '') + `</h2>
+                            
+                            <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px; font-size: 13px;">
+                                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px 0; font-weight: bold; width: 40%;">Provincia:</td><td style="padding: 8px 0;">${comunidadObjeto.provincia}</td></tr>` +
+                                (comunidadObjeto.parroquia ? `<tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px 0; font-weight: bold;">Parroquia:</td><td style="padding: 8px 0;">\${comunidadObjeto.parroquia}</td></tr>` : '') + 
+                                `<tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px 0; font-weight: bold;">Coordenadas:</td><td style="padding: 8px 0;">${comunidadObjeto.coordenadas[0].toFixed(5)}, ${comunidadObjeto.coordenadas[1].toFixed(5)}</td></tr>
+                                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px 0; font-weight: bold;">Fuentes hídricas:</td><td style="padding: 8px 0;">${comunidadObjeto.tipoAgua || 'N/A'}</td></tr>
+                                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px 0; font-weight: bold;">Tipo de contaminación:</td><td style="padding: 8px 0;">${comunidadObjeto.tipoContaminacion || 'N/A'}</td></tr>
+                                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px 0; font-weight: bold;">Nivel de Riesgo:</td><td style="padding: 8px 0; font-weight: bold; color: ${comunidadObjeto.estadoGeneral.toLowerCase() === 'crítica' ? '#e74c3c' : '#f1c40f'}">${comunidadObjeto.riesgo || 'N/A'}</td></tr>
+                                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px 0; font-weight: bold;">Nº de Familias:</td><td style="padding: 8px 0;">${comunidadObjeto.numFamilias || 'N/A'}&nbsp;(Soluciones entregadas: ${comunidadObjeto.solucionesEntregadas})</td></tr>
+                                <tr style="border-bottom: 1px solid #eee;"><td style="padding: 8px 0; font-weight: bold;">Estado de la comunidad:</td><td style="padding: 8px 0; font-weight: bold;">${this.getTituloEstado(comunidadObjeto.estadoGeneral)}</td></tr>
+                            </table>
+
+                            ${seccionFotograficaHtml}                            
+
+                            <div style="margin-top: 20px; border-top: 1px solid #ddd; padding-top: 5px; text-align: center; font-size: 10px; color: #aaa;">
+                                Ficha generada automáticamente desde The Social Water.
+                            </div>
+                        </div>
+                    `;
+
+                    const opcionesPdf = {
+                        margin:       8,
+                        filename:     `Ficha_TheSocialWater_${nombreLimpio}.pdf`,
+                        image:        { type: 'jpeg', quality: 0.98 },
+                        html2canvas:  { 
+                            scale: 2,           // Duplica la densidad de píxeles para máxima nitidez
+                            useCORS: true,      // Permite pintar las fotos de servidores externos sin bloqueos
+                            logging: false
+                        },
+                        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    };
+
+                    // 4. EJECUCIÓN DIRECTA: Pasamos la cadena HTML directamente al motor sin tocar el DOM
+                    html2pdf().from(estructuraHtmlPlana).set(opcionesPdf).save().catch(error => {
+                        console.error("Error en la compilación del reporte PDF:", error);
+                    });
+                });
+
+                // ================= ACCIÓN: EXPORTAR A EXCEL (XLSX) =================
+                btnExcel.addEventListener('click', () => {
+                    // Mapeamos el objeto JSON plano a columnas legibles para la hoja de cálculo
+                    const datosFila = [{
+                        'Comunidad': comunidadObjeto.nombre,
+                        'Pueblo / Etnia': comunidadObjeto.pueblo || 'N/A',
+                        'Provincia': comunidadObjeto.provincia,
+                        'Parroquia': comunidadObjeto.parroquia || 'N/A',
+                        'Latitud': comunidadObjeto.coordenadas[0],
+                        'Longitud': comunidadObjeto.coordenadas[1],
+                        'Fuentes Hídricas': comunidadObjeto.tipoAgua || 'N/A',
+                        'Tipo Contaminación': comunidadObjeto.tipoContaminacion || 'N/A',
+                        'Nivel de Riesgo': comunidadObjeto.riesgo || 'N/A',
+                        'Nº de Familias': comunidadObjeto.numFamilias || 0,
+                        'Soluciones entregadas': comunidadObjeto.solucionesEntregadas || 0,
+                        'Estado General': comunidadObjeto.estadoGeneral
+                    }];
+
+                    // Operaciones con la API nativa de SheetJS (XLSX)
+                    const hojaTrabajo = XLSX.utils.json_to_sheet(datosFila);
+                    const libroTrabajo = XLSX.utils.book_new();
+                    
+                    XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, 'Datos Comunidad');
+                    
+                    // Ajuste automático básico del ancho de las columnas
+                    hojaTrabajo['!cols'] = Object.keys(datosFila[0]).map(key => ({ wch: Math.max(key.length + 4, 15) }));
+
+                    // Lanzar la descarga del binario Excel
+                    XLSX.writeFile(libroTrabajo, `Datos_TheSocialWater_${nombreLimpio}.xlsx`);
+                });
+            }
 
             const carrusel = contenedorPopup.querySelector('.contenedor-carrusel');
             if (!carrusel) return;
@@ -337,7 +485,9 @@ class SocialWaterMap {
                     (comunidad.parroquia !== ''
                         ? `<p style="margin: 0 0 3px 0; font-size: 11px;"><b>Parroquia:</b> ${comunidad.parroquia}</p>`
                         : '') +
-                    `<p style="margin: 0 0 3px 0; font-size: 11px;"><b>Coordenadas (lat/lon):</b> (${comunidad.coordenadas[0].toFixed(5)}, ${comunidad.coordenadas[1].toFixed(5)})</p>
+                    `<p style="margin: 0 0 3px 0; font-size: 11px; cursor: pointer;" class="coordenadas-copiables" data-coords="${comunidad.coordenadas[0]},${comunidad.coordenadas[1]}" title="Haz clic para copiar">
+                        <b>Coordenadas (lat/lon):</b> (${comunidad.coordenadas[0].toFixed(5)}, ${comunidad.coordenadas[1].toFixed(5)}) 📋
+                    </p>
                     <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Fuentes hídricas:</b> ${comunidad.tipoAgua || 'N/A'}</p>                    
                     <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Tipo de contaminación:</b> ${comunidad.tipoContaminacion || 'N/A'}</p>
                     <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Riesgo:</b> ${comunidad.riesgo || 'N/A'}</p>
@@ -351,6 +501,15 @@ class SocialWaterMap {
                             <button class="btn-carrusel prev btn-prev">&#10094;</button>
                             <button class="btn-carrusel next btn-next">&#10095;</button>
                         ` : ''}
+                    </div>
+
+                    <div class="zona-exportacion" style="display: flex; gap: 8px; margin-top: 10px;">
+                        <button class="btn-exportar-pdf" data-index="${indexComunidad}" title="Exportar ficha a PDF" style="flex: 1; padding: 6px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; display: flex; justify-content: center; align-items: center;">
+                            📄 <span style="font-size: 11px; font-weight: bold; margin-left: 4px;">PDF</span>
+                        </button>
+                        <button class="btn-exportar-excel" data-index="${indexComunidad}" title="Exportar datos a Excel" style="flex: 1; padding: 6px; background-color: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; display: flex; justify-content: center; align-items: center;">
+                            📊 <span style="font-size: 11px; font-weight: bold; margin-left: 4px;">XLSX</span>
+                        </button>
                     </div>
                 </div>
             `;
