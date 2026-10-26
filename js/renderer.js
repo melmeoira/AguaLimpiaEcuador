@@ -1,6 +1,4 @@
 import { LeafletMap, TileLayer, GeoJSON, CircleMarker, LayerGroup, DivIcon, Marker, LatLngBounds  } from 'leaflet';
-
-
 class SocialWaterMap {
     // Propiedades estáticas de configuración de la clase
     static LIMITES_CONTINENTE = [ [-5.01, -81.08], [1.65, -75.19] ];
@@ -10,6 +8,11 @@ class SocialWaterMap {
         maxZoom: 7,                 // Evitamos un acercamiento excesivo en pantallas pequeñas
         animate: true               // Suaviza la transición inicial
     };
+
+    static proyecto = "";
+    static proyectoNombre = "";
+    static proyectoDescripcion = "";
+    static listaComunidades = [];
 
 
     constructor() {
@@ -52,13 +55,13 @@ class SocialWaterMap {
             fetch('geojson/capitales.geojson').then(res => { if (!res.ok) throw new Error(); return res.json(); }),
             fetch('geojson/rios_corregidos.geojson').then(res => { if (!res.ok) throw new Error(); return res.json(); })
         ])
-        .then(([datosFrontera, datosComunidades, datosCapitales, datosRios]) => {
-            datosComunidades.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }));
+        .then(([datosFrontera, datosProyectos, datosCapitales, datosRios]) => {
+            let datosProyecto = datosProyectos[0];            
             this.procesarCapaFrontera(datosFrontera);
             this.inicializarCapasSecundarias(datosCapitales, datosRios);
             this.inicializarControlesCapas();
-            this.inicializarComunidades(datosComunidades);
-            this.actualizarContadores(datosComunidades);
+            this.inicializarProyectoYComunidades(datosProyecto);
+            this.actualizarContadores();
             this.configurarFiltros();
             this.configurarBuscador();
         })
@@ -465,8 +468,13 @@ class SocialWaterMap {
         /**
      * Mapea y guarda en memoria el catálogo de comunidades de la Amazonía
      */
-    inicializarComunidades(comunidades) {
-        comunidades.forEach((comunidad, indexComunidad) => {
+    inicializarProyectoYComunidades(datosProyecto) {
+        this.proyecto = datosProyecto.proyecto;
+        this.proyectoNombre = datosProyecto.nombre_bien;
+        this.proyectoDescripcion = datosProyecto.descripcion;
+        this.listaComunidades = datosProyecto.comunidades.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }));
+        
+        this.listaComunidades.forEach((comunidad, indexComunidad) => {
             const htmlCasitaComunidad = `
                 <svg class="svg-comunidad casita" viewBox="0 0 24 24" width="22" height="22">
                     <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" 
@@ -573,9 +581,9 @@ class SocialWaterMap {
     /**
      * Calcula dinámicamente e inyecta las cantidades en los botones de filtro
      */
-    actualizarContadores(comunidades) {
-        let totales = { Todas: comunidades.length, recup: 0, Alerta: 0, Critica: 0 };
-        comunidades.forEach(comunidad => {
+    actualizarContadores() {
+        let totales = { Todas: this.comunidades.length, recup: 0, Alerta: 0, Critica: 0 };
+        this.comunidades.forEach(comunidad => {
             const estado = comunidad.estadoGeneral.trim().toLowerCase();
             if (estado === "recuperacion") totales.recup++;
             if (estado === "alerta") totales.Alerta++;
