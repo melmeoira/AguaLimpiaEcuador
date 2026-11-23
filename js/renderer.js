@@ -24,6 +24,9 @@ class SocialWaterMap {
         this.proyectoNombre = "";
         this.proyectoDescripcion = "";
         this.listaComunidades = [];
+
+        this.fotosModalActual = [];
+        this.indiceFotoModal = 0;
     }
 
     /**
@@ -274,9 +277,15 @@ class SocialWaterMap {
 
             carrusel.addEventListener('click', (evento) => {
                 if (evento.target.classList.contains('foto-carrusel')) {
-                    this.abrirVisorAmpliado(evento.target.src);
+                    // Extraemos todas las URLs de las fotos que ya están renderizadas en ese carrusel
+                    const imgsCarrusel = Array.from(carrusel.querySelectorAll('.foto-carrusel'));
+                    const listaUrls = imgsCarrusel.map(img => img.src);
+                    const indiceClic = imgsCarrusel.indexOf(evento.target);
+
+                    this.abrirVisorAmpliado(listaUrls, indiceClic >= 0 ? indiceClic : 0);
                 }
             });
+
         });
     }
 
@@ -755,13 +764,42 @@ class SocialWaterMap {
     /**
      * Despliega la foto ampliada en la ventana flotante modal
      */
-    abrirVisorAmpliado(src) {
+    abrirVisorAmpliado(listaFotos, indiceInicial = 0) {
         const modal = document.getElementById('modal-visor');
         const imgAmpliada = document.getElementById('imagen-ampliada');
-        
-        if (modal && imgAmpliada) {
-            imgAmpliada.src = src;
-            modal.classList.add('visible'); // El CSS se encarga del fundido y escalado de entrada
+        const btnPrev = document.getElementById('btn-modal-prev');
+        const btnNext = document.getElementById('btn-modal-next');
+
+        if (!modal || !imgAmpliada || !listaFotos.length) return;
+
+        this.fotosModalActual = listaFotos;
+        this.indiceFotoModal = indiceInicial;
+        imgAmpliada.src = this.fotosModalActual[this.indiceFotoModal];
+
+        // Ocultar flechas si la comunidad solo tiene 1 foto
+        const mostrarControles = this.fotosModalActual.length > 1;
+        if (btnPrev) btnPrev.classList.toggle('oculto', !mostrarControles);
+        if (btnNext) btnNext.classList.toggle('oculto', !mostrarControles);
+
+        modal.classList.add('visible');
+    }
+
+    /**
+     * Avanza o retrocede entre las fotos dentro del visor maximizado
+     */
+    cambiarFotoModal(direccion) {
+        if (this.fotosModalActual.length <= 1) return;
+
+        this.indiceFotoModal += direccion;
+        if (this.indiceFotoModal >= this.fotosModalActual.length) {
+            this.indiceFotoModal = 0;
+        } else if (this.indiceFotoModal < 0) {
+            this.indiceFotoModal = this.fotosModalActual.length - 1;
+        }
+
+        const imgAmpliada = document.getElementById('imagen-ampliada');
+        if (imgAmpliada) {
+            imgAmpliada.src = this.fotosModalActual[this.indiceFotoModal];
         }
     }
 
@@ -771,6 +809,8 @@ class SocialWaterMap {
     configurarCierreModal() {
         const modal = document.getElementById('modal-visor');
         const btnCerrar = document.getElementById('btn-cerrar-modal');
+        const btnPrev = document.getElementById('btn-modal-prev');
+        const btnNext = document.getElementById('btn-modal-next');
 
         if (!modal) return;
 
@@ -778,14 +818,30 @@ class SocialWaterMap {
             btnCerrar.addEventListener('click', () => modal.classList.remove('visible'));
         }
 
+        if (btnPrev) {
+            btnPrev.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.cambiarFotoModal(-1);
+            });
+        }
+
+        if (btnNext) {
+            btnNext.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.cambiarFotoModal(1);
+            });
+        }
+
         modal.addEventListener('click', (e) => {
             if (e.target === modal) modal.classList.remove('visible');
         });
 
         window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && modal.classList.contains('visible')) {
-                modal.classList.remove('visible');
-            }
+            if (!modal.classList.contains('visible')) return;
+
+            if (e.key === 'Escape') modal.classList.remove('visible');
+            if (e.key === 'ArrowLeft') this.cambiarFotoModal(-1);
+            if (e.key === 'ArrowRight') this.cambiarFotoModal(1);
         });
     }
 

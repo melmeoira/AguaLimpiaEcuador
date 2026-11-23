@@ -848,3 +848,53 @@ html, body {
         font-size: 32px;
     }
 }
+
+/* BOTONES DE NAVEGACIÓN EN EL VISOR AMPLIADO */
+.btn-modal-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(11, 28, 44, 0.75);
+    color: #90e0ef;
+    border: 1px solid rgba(0, 180, 216, 0.4);
+    font-size: 26px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-radius: 6px;
+    z-index: 10001;
+    transition: background-color 0.2s, color 0.2s, transform 0.1s;
+    user-select: none;
+}
+
+.btn-modal-nav:hover {
+    background: rgba(0, 180, 216, 0.9);
+    color: #ffffff;
+    transform: translateY(-50%) scale(1.08);
+}
+
+.btn-modal-nav.prev {
+    left: 20px;
+}
+
+.btn-modal-nav.next {
+    right: 20px;
+}
+
+.btn-modal-nav.oculto {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    .btn-modal-nav {
+        font-size: 20px;
+        padding: 8px 12px;
+    }
+
+    .btn-modal-nav.prev {
+        left: 8px;
+    }
+
+    .btn-modal-nav.next {
+        right: 8px;
+    }
+}
