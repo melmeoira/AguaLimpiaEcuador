@@ -618,8 +618,10 @@ html, body {
 }
 
 /* Ocultar el botón de colapsar en escritorio */
-.btn-toggle-panel {
-    display: none;
+@media (min-width: 769px) {
+    .btn-toggle-panel {
+        display: none !important;
+    }
 }
 
 /* ==========================================================================
@@ -684,7 +686,7 @@ html, body {
     }
 
     .btn-toggle-panel {
-        display: flex;
+        display: flex !important;
         align-items: center;
         gap: 5px;
         background: rgba(0, 180, 216, 0.25);
