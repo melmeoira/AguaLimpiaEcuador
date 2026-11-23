@@ -1,22 +1,22 @@
-const CACHE_NAME = 'social-water-v1';
+const CACHE_NAME = 'social-water-v2';
 const ASSETS_TO_CACHE = [
-    '/css/estilo.css',
-    '/geojson/comunidades.json',
-    '/geojson/ecuador.geojson',
-    '/geojson/capitales.geojson',
-    '/geojson/rios_corregidos.geojson',
-    '/js/leaflet/leaflet.css',
-    '/js/leaflet/leaflet.js'
+    '../css/estilo.css',
+    '../geojson/comunidades.json',
+    '../geojson/ecuador.geojson',
+    '../geojson/capitales.geojson',
+    '../geojson/rios_corregidos.geojson',
+    './leaflet/leaflet.css',
+    './leaflet/leaflet.js'
 ];
 
 // Instala el Service Worker y precacha los archivos core locales
 self.addEventListener('install', (event) => {
+    self.skipWaiting();
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             return cache.addAll(ASSETS_TO_CACHE);
         })
     );
-    self.skipWaiting();
 });
 
 // Limpia cachés antiguas en caso de actualización de software
@@ -30,40 +30,47 @@ self.addEventListener('activate', (event) => {
                     }
                 })
             );
-        })
+        }).then(() => self.clients.claim())
     );
-    self.clients.claim();
 });
 
 // Intercepta peticiones de red (La magia del mapa offline de Esri)
 self.addEventListener('fetch', (event) => {
+    if (event.request.method !== 'GET') return;
+
     const url = event.request.url;
 
-    // Estrategia de caché para las imágenes de mapas (Esri, etc.)
-    if (url.includes('arcgisonline.com') || url.includes('.png') || url.includes('.jpg')) {
+    // 1. Estrategia Cache-First para imágenes y teselas de mapas (Esri, fotos, iconos)
+    if (url.includes('arcgisonline.com') || url.includes('.png') || url.includes('.jpg') || url.includes('.jpeg')) {
         event.respondWith(
             caches.open(CACHE_NAME).then((cache) => {
                 return cache.match(event.request).then((cachedResponse) => {
-                    // Si el tile satelital ya existe en caché, lo sirve al instante sin internet
                     if (cachedResponse) return cachedResponse;
 
-                    // Si no existe, lo descarga de internet, lo guarda en caché y lo muestra
                     return fetch(event.request).then((networkResponse) => {
                         cache.put(event.request, networkResponse.clone());
                         return networkResponse;
                     }).catch(() => {
-                        // Devuelve un cuadro vacío si falla internet y no está en caché
                         return new Response('');
                     });
                 });
             })
         );
     } else {
-        // Estrategia por defecto para archivos locales del código: primero caché, si falla, red
+        // 2. Estrategia Network-First para código y datos (HTML, CSS, JS, JSON):
+        // Siempre intenta traer lo último de GitHub Pages; si no hay conexión, usa la caché.
         event.respondWith(
-            caches.match(event.request).then((response) => {
-                return response || fetch(event.request);
-            })
+            fetch(event.request)
+                .then((networkResponse) => {
+                    const responseClone = networkResponse.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseClone);
+                    });
+                    return networkResponse;
+                })
+                .catch(() => {
+                    return caches.match(event.request);
+                })
         );
     }
 });

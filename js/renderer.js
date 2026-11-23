@@ -275,9 +275,41 @@ class SocialWaterMap {
                 btnNext.addEventListener('click', () => this.procesarCambioFoto(carrusel, 1));
             }
 
+            // ================= DESLIZAMIENTO TÁCTIL (SWIPE) EN EL POPUP =================
+            let toqueInicioX = 0;
+            let seDeslizo = false;
+
+            carrusel.addEventListener('touchstart', (e) => {
+                e.stopPropagation(); // Evita que el mapa de Leaflet se mueva al tocar la foto
+                toqueInicioX = e.changedTouches[0].screenX;
+                seDeslizo = false;
+            }, { passive: true });
+
+            carrusel.addEventListener('touchend', (e) => {
+                e.stopPropagation();
+                const toqueFinX = e.changedTouches[0].screenX;
+                const diferencia = toqueInicioX - toqueFinX;
+
+                // Umbral de 30px para distinguir un deslizamiento de un toque simple
+                if (Math.abs(diferencia) > 30) {
+                    seDeslizo = true;
+                    if (diferencia > 0) {
+                        this.procesarCambioFoto(carrusel, 1);  // Izquierda -> Siguiente
+                    } else {
+                        this.procesarCambioFoto(carrusel, -1); // Derecha -> Anterior
+                    }
+                }
+            }, { passive: true });
+
+            // ================= ABRIR VISOR AMPLIADO AL HACER CLIC =================
             carrusel.addEventListener('click', (evento) => {
+                // Si el usuario acaba de deslizar el dedo, no abrimos el visor maximizado
+                if (seDeslizo) {
+                    seDeslizo = false;
+                    return;
+                }
+
                 if (evento.target.classList.contains('foto-carrusel')) {
-                    // Extraemos todas las URLs de las fotos que ya están renderizadas en ese carrusel
                     const imgsCarrusel = Array.from(carrusel.querySelectorAll('.foto-carrusel'));
                     const listaUrls = imgsCarrusel.map(img => img.src);
                     const indiceClic = imgsCarrusel.indexOf(evento.target);
@@ -769,6 +801,7 @@ class SocialWaterMap {
         const imgAmpliada = document.getElementById('imagen-ampliada');
         const btnPrev = document.getElementById('btn-modal-prev');
         const btnNext = document.getElementById('btn-modal-next');
+        const contador = document.getElementById('contador-modal');
 
         if (!modal || !imgAmpliada || !listaFotos.length) return;
 
@@ -776,10 +809,14 @@ class SocialWaterMap {
         this.indiceFotoModal = indiceInicial;
         imgAmpliada.src = this.fotosModalActual[this.indiceFotoModal];
 
-        // Ocultar flechas si la comunidad solo tiene 1 foto
-        const mostrarControles = this.fotosModalActual.length > 1;
-        if (btnPrev) btnPrev.classList.toggle('oculto', !mostrarControles);
-        if (btnNext) btnNext.classList.toggle('oculto', !mostrarControles);
+        const hayVariasFotos = this.fotosModalActual.length > 1;
+        if (btnPrev) btnPrev.classList.toggle('oculto', !hayVariasFotos);
+        if (btnNext) btnNext.classList.toggle('oculto', !hayVariasFotos);
+
+        if (contador) {
+            contador.classList.toggle('oculto', !hayVariasFotos);
+            contador.textContent = `${this.indiceFotoModal + 1} / ${this.fotosModalActual.length}`;
+        }
 
         modal.classList.add('visible');
     }
@@ -798,13 +835,19 @@ class SocialWaterMap {
         }
 
         const imgAmpliada = document.getElementById('imagen-ampliada');
+        const contador = document.getElementById('contador-modal');
+
         if (imgAmpliada) {
             imgAmpliada.src = this.fotosModalActual[this.indiceFotoModal];
+        }
+
+        if (contador) {
+            contador.textContent = `${this.indiceFotoModal + 1} / ${this.fotosModalActual.length}`;
         }
     }
 
     /**
-     * Sincroniza los escuchadores nativos para cerrar la ampliación de fotos
+     * Sincroniza cierre, botones, teclado y deslizamiento táctil (swipe) en el modal
      */
     configurarCierreModal() {
         const modal = document.getElementById('modal-visor');
@@ -843,6 +886,28 @@ class SocialWaterMap {
             if (e.key === 'ArrowLeft') this.cambiarFotoModal(-1);
             if (e.key === 'ArrowRight') this.cambiarFotoModal(1);
         });
+
+        // Soporte de deslizamiento táctil (Swipe) para móviles
+        let toqueInicioX = 0;
+        let toqueFinX = 0;
+
+        modal.addEventListener('touchstart', (e) => {
+            toqueInicioX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        modal.addEventListener('touchend', (e) => {
+            toqueFinX = e.changedTouches[0].screenX;
+            const diferencia = toqueInicioX - toqueFinX;
+
+            // Umbral mínimo de 40px para evitar pulsaciones accidentales
+            if (Math.abs(diferencia) > 40) {
+                if (diferencia > 0) {
+                    this.cambiarFotoModal(1);  // Deslizar a la izquierda -> Siguiente foto
+                } else {
+                    this.cambiarFotoModal(-1); // Deslizar a la derecha -> Foto anterior
+                }
+            }
+        }, { passive: true });
     }
 
     configurarInteractividadIframe() {
