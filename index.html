@@ -2,7 +2,7 @@
 <html lang="es">
     <head>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <title>The Social Water - Ecuador</title>
         
         <link rel="icon" type="image/jpeg" href="./img/thesocialwater.jpg" />
@@ -25,11 +25,14 @@
         <button id="btn-home" class="btn-restablecer" title="Restablecer vista general de Ecuador">🇪🇨</button>
         <div class="panel-leyenda">
             <div class="cabecera-panel">
-                <!-- CONTENEDOR DEL LOGO Y TÍTULO (Actualizado) -->
-                <div class="contenedor-logo-titulo">
-                    <!-- Reemplaza la ruta en src si tienes el logo dentro de otra carpeta (ej: src="/img/logo-the-social-water-blanco.png") -->
-                    <img src="img/logo-the-social-water-blanco.png" alt="Logo The Social Water" class="logo-cabecera" />
-                    <h3 style="margin-left: 30px;">Ecuador</h3>
+                <div class="cabecera-superior-movil">
+                    <div class="contenedor-logo-titulo">
+                        <img src="img/logo-the-social-water-blanco.png" alt="Logo The Social Water" class="logo-cabecera" />
+                        <h3 style="margin-left: 30px;">Ecuador</h3>
+                    </div>
+                    <button id="btn-toggle-panel" class="btn-toggle-panel" aria-label="Mostrar lista de comunidades">
+                        <span class="icono-flecha">▲</span>
+                    </button>
                 </div>
                 <p>Agua limpia para comunidades vulnerables.</p>
             </div>

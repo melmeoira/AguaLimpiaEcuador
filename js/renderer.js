@@ -1,4 +1,4 @@
-import { LeafletMap, TileLayer, GeoJSON, CircleMarker, LayerGroup, DivIcon, Marker, LatLngBounds  } from 'leaflet';
+import { LeafletMap, TileLayer, GeoJSON, CircleMarker, LayerGroup, DivIcon, Marker, LatLngBounds } from 'leaflet';
 class SocialWaterMap {
     // Propiedades estáticas de configuración de la clase
     static LIMITES_CONTINENTE = [ [-5.01, -81.08], [1.65, -75.19] ];
@@ -9,12 +9,6 @@ class SocialWaterMap {
         animate: true               // Suaviza la transición inicial
     };
 
-    static proyecto = "";
-    static proyectoNombre = "";
-    static proyectoDescripcion = "";
-    static listaComunidades = [];
-
-
     constructor() {
         // Inicialización de las propiedades de control de la instancia
         this.mapaInstancia = null;
@@ -24,6 +18,12 @@ class SocialWaterMap {
         // Instancias de grupos de capas para el controlador de Checkboxes
         this.grupoCapitales = new LayerGroup();
         this.grupoRios = new LayerGroup();
+
+        //inicialización de datos del proyecto y comunidades
+        this.proyecto = "";
+        this.proyectoNombre = "";
+        this.proyectoDescripcion = "";
+        this.listaComunidades = [];
     }
 
     /**
@@ -47,6 +47,7 @@ class SocialWaterMap {
         // Registro de los gestores seguros de eventos globales del mapa y modal
         this.configurarEventosMapa();
         this.configurarCierreModal();
+        this.configurarPanelColapsable();
 
         // Carga concurrente y asíncrona de ficheros externos
         Promise.all([
@@ -340,16 +341,29 @@ class SocialWaterMap {
         });
         capaFrontera.addTo(this.mapaInstancia);
 
-        this.mapaInstancia.fitBounds(limitesContinentales, SocialWaterMap.OPCIONES_ENCUADRE);
+        this.mapaInstancia.fitBounds(limitesContinentales, SocialWaterMap.getOpcionesEncuadre());
 
         // Configuración del botón Home de regreso al continente
         const botonHome = document.getElementById('btn-home');
         if (botonHome) {
             botonHome.addEventListener('click', () => {
                 this.mapaInstancia.closePopup();
-                this.mapaInstancia.fitBounds(SocialWaterMap.LIMITES_CONTINENTE, SocialWaterMap.OPCIONES_ENCUADRE);
+                this.mapaInstancia.fitBounds(SocialWaterMap.LIMITES_CONTINENTE, SocialWaterMap.getOpcionesEncuadre());
             });
         }
+    }
+
+    /**
+     * Devuelve opciones de encuadre dinámicas según el ancho de pantalla
+     */
+    static getOpcionesEncuadre() {
+        const esMovil = document.documentElement.clientWidth <= 768;
+        return {
+            paddingTopLeft: esMovil ? [0, 0] : [-230, 0],
+            paddingBottomRight: esMovil ? [0, 20] : [0, 0],
+            maxZoom: esMovil ? 6 : 7, // Zoom ligeramente menor en móvil para ver todo el país
+            animate: true
+        };
     }
 
     /**
@@ -445,7 +459,7 @@ class SocialWaterMap {
                         case 'dam': tipo = 'Presa o represa'; break;
                         case 'river': tipo = 'Rio'; break;
                         case 'ditch': tipo = 'Zanja o estero'; break;                   
-                        case 'stream': tipo = 'Arroyo'; break;  ç
+                        case 'stream': tipo = 'Arroyo'; break;
                         case 'canal': tipo = 'Canal'; break;  
                         case 'drain': tipo = 'Drenaje'; break;  
                         case 'waterfall': tipo = 'Cascada'; break;  
@@ -473,7 +487,7 @@ class SocialWaterMap {
         this.proyectoNombre = datosProyecto.nombre_bien;
         this.proyectoDescripcion = datosProyecto.descripcion;
         this.listaComunidades = datosProyecto.comunidades.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es', { sensitivity: 'base' }));
-        
+
         this.listaComunidades.forEach((comunidad, indexComunidad) => {
             const htmlCasitaComunidad = `
                 <svg class="svg-comunidad casita" viewBox="0 0 24 24" width="22" height="22">
@@ -515,25 +529,24 @@ class SocialWaterMap {
             }
 
             const contenidoPopup = `
-                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; min-width: 210px;">
-                    <h4 style="margin: 0 0 5px 0; color: #0077b6; font-size: 13px;">${comunidad.nombre}` + 
-                    (comunidad.pueblo !== ''
-                        ? ` (Pueblo ${comunidad.pueblo})`
-                        : '') +
-                    `</h4>
-                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Provincia:</b> ${comunidad.provincia}</p>` + 
-                    (comunidad.parroquia !== ''
-                        ? `<p style="margin: 0 0 3px 0; font-size: 11px;"><b>Parroquia:</b> ${comunidad.parroquia}</p>`
-                        : '') +
-                    `<p style="margin: 0 0 3px 0; font-size: 11px; cursor: pointer;" class="coordenadas-copiables" data-coords="${comunidad.coordenadas[0]},${comunidad.coordenadas[1]}" title="Haz clic para copiar">
-                        <b>Coordenadas (lat/lon):</b> (${comunidad.coordenadas[0].toFixed(5)}, ${comunidad.coordenadas[1].toFixed(5)}) 📋
-                    </p>
-                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Fuentes hídricas:</b> ${comunidad.tipoAgua || 'N/A'}</p>                    
-                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Tipo de contaminación:</b> ${comunidad.tipoContaminacion || 'N/A'}</p>
-                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Riesgo:</b> ${comunidad.riesgo || 'N/A'}</p>
-                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Nº de Familias:</b> ${comunidad.numFamilias || 'N/A'}</p>
-                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Soluciones entregadas:</b> ${comunidad.numFamilias || 'N/A'}</p>                    
-                    <p style="margin: 0 0 3px 0; font-size: 11px;"><b>Estado:</b> <span style="color: ${this.getColorEstado(comunidad.estadoGeneral)}; font-weight: bold;">${this.getTituloEstado(comunidad.estadoGeneral)}</span></p>
+                <div class="popup-comunidad">
+                    <h4 class="popup-titulo">
+                        ${comunidad.nombre}
+                        ${comunidad.pueblo !== '' ? ` (Pueblo ${comunidad.pueblo})` : ''}
+                    </h4>
+                    
+                    <div class="popup-datos-scroll">
+                        <p><b>Provincia:</b> ${comunidad.provincia}</p>
+                        ${comunidad.parroquia !== '' ? `<p><b>Parroquia:</b> ${comunidad.parroquia}</p>` : ''}
+                        <p class="coordenadas-copiables" data-coords="${comunidad.coordenadas[0]},${comunidad.coordenadas[1]}" title="Haz clic para copiar">
+                            <b>Coords:</b> (${comunidad.coordenadas[0].toFixed(4)}, ${comunidad.coordenadas[1].toFixed(4)}) 📋
+                        </p>
+                        <p><b>Fuentes hídricas:</b> ${comunidad.tipoAgua || 'N/A'}</p>                    
+                        <p><b>Contaminación:</b> ${comunidad.tipoContaminacion || 'N/A'}</p>
+                        <p><b>Riesgo:</b> ${comunidad.riesgo || 'N/A'}</p>
+                        <p><b>Familias:</b> ${comunidad.numFamilias || 'N/A'} | <b>Soluciones:</b> ${comunidad.solucionesEntregadas || 0}</p>
+                        <p><b>Estado:</b> <span style="color: ${this.getColorEstado(comunidad.estadoGeneral)}; font-weight: bold;">${this.getTituloEstado(comunidad.estadoGeneral)}</span></p>
+                    </div>
                     
                     <div class="contenedor-carrusel" id="carrusel-${indexComunidad}">
                         ${htmlFotos}
@@ -543,17 +556,21 @@ class SocialWaterMap {
                         ` : ''}
                     </div>
 
-                    <div class="zona-exportacion" style="display: flex; gap: 8px; margin-top: 10px;">
-                        <button class="btn-exportar-pdf" data-index="${indexComunidad}" title="Exportar ficha a PDF" style="flex: 1; padding: 6px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; display: flex; justify-content: center; align-items: center;">
-                            📄 <span style="font-size: 11px; font-weight: bold; margin-left: 4px;">PDF</span>
+                    <div class="zona-exportacion">
+                        <button class="btn-exportar-pdf" data-index="${indexComunidad}" title="Exportar ficha a PDF">
+                            📄 <span>PDF</span>
                         </button>
-                        <button class="btn-exportar-excel" data-index="${indexComunidad}" title="Exportar datos a Excel" style="flex: 1; padding: 6px; background-color: #2ecc71; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; display: flex; justify-content: center; align-items: center;">
-                            📊 <span style="font-size: 11px; font-weight: bold; margin-left: 4px;">XLSX</span>
+                        <button class="btn-exportar-excel" data-index="${indexComunidad}" title="Exportar datos a Excel">
+                            📊 <span>XLSX</span>
                         </button>
                     </div>
-                </div>
-            `;
-            marcador.bindPopup(contenidoPopup);
+                </div>`;
+
+            marcador.bindPopup(contenidoPopup, {
+                maxWidth: window.innerWidth <= 768 ? 240 : 300,
+                autoPanPaddingTopLeft: [15, 15],
+                autoPanPaddingBottomRight: [15, 15]
+            });
 
             this.listaComunidadesGlobal.push({
                 info: comunidad,
@@ -582,8 +599,8 @@ class SocialWaterMap {
      * Calcula dinámicamente e inyecta las cantidades en los botones de filtro
      */
     actualizarContadores() {
-        let totales = { Todas: this.comunidades.length, recup: 0, Alerta: 0, Critica: 0 };
-        this.comunidades.forEach(comunidad => {
+        let totales = { Todas: this.listaComunidades.length, recup: 0, Alerta: 0, Critica: 0 };
+        this.listaComunidades.forEach(comunidad => {
             const estado = comunidad.estadoGeneral.trim().toLowerCase();
             if (estado === "recuperacion") totales.recup++;
             if (estado === "alerta") totales.Alerta++;
@@ -673,20 +690,36 @@ class SocialWaterMap {
 
                 const tarjetaHtml = document.createElement('div');
                 tarjetaHtml.className = 'tarjeta-comunidad';
-                tarjetaHtml.style.borderLeft = `5px solid ${colorEstado}`;
+                tarjetaHtml.style.borderLeft = `4px solid ${colorEstado}`;
                 tarjetaHtml.innerHTML = `
-                    <h5>${comunidad.nombre}` + 
-                    (comunidad.pueblo !== ''
-                        ? `<span style="font-size: 0.8rem;"> (Pueblo ${comunidad.pueblo})</span>`
-                        : '') +
-                    `</h5>
-                    <p style="margin: 0 0 4px 0;">Provincia: ${comunidad.provincia}</p>
-                    <span class="etiqueta-estado" style="background-color: ${this.getColorEstado(comunidad.estadoGeneral)}">${this.getTituloEstado(comunidad.estadoGeneral)}</span>
-                    <p style="margin: 0 0 4px 0; font-size: 0.75rem;">Familias: <b>${comunidad.numFamilias || 0}</b></p>`;
+                    <div class="tarjeta-fila-superior">
+                        <h5>
+                            ${comunidad.nombre}
+                            ${comunidad.pueblo !== '' ? `<span class="texto-pueblo"> (Pueblo ${comunidad.pueblo})</span>` : ''}
+                            
+                        </h5>
+                        <span class="etiqueta-estado" style="background-color: ${colorEstado}">
+                            ${this.getTituloEstado(comunidad.estadoGeneral)}
+                        </span>
+                        
+                    </div>
+                    <div class="tarjeta-fila-inferior">
+                        <span class="dato-provincia">${comunidad.provincia}</span>
+                        <span class="dato-familias">Familias: <b>${comunidad.numFamilias || 0}</b></span>                        
+                    </div>`;
 
+                
                 tarjetaHtml.addEventListener('click', () => {
-                    this.mapaInstancia.setView(comunidad.coordenadas, 12);
+                    const esMovil = document.documentElement.clientWidth <= 768;
+                    this.mapaInstancia.setView(comunidad.coordenadas, esMovil ? 11 : 12);
                     marcador.openPopup();
+                    
+                    // En móvil, desplaza ligeramente el mapa hacia abajo para que el popup quepa entero arriba
+                    if (esMovil) {
+                        setTimeout(() => {
+                            this.mapaInstancia.panBy([0, -90]);
+                        }, 200);
+                    }
                 });
 
                 contenedorLista.appendChild(tarjetaHtml);
@@ -770,6 +803,34 @@ class SocialWaterMap {
                 this.mapaInstancia.scrollWheelZoom.disable();
             }
         });
+    }
+
+    configurarPanelColapsable() {
+        const panel = document.querySelector('.panel-leyenda');
+        const btnToggle = document.getElementById('btn-toggle-panel');
+        const cabecera = document.querySelector('.cabecera-panel');
+
+        if (!panel || !btnToggle) return;
+
+        // 1. Si carga en pantalla de teléfono (<= 768px), iniciar colapsado
+        if (document.documentElement.clientWidth <= 768) {
+            panel.classList.add('colapsado');
+        }
+
+        const alternarPanel = () => {
+            if (document.documentElement.clientWidth <= 768) {
+                panel.classList.toggle('colapsado');
+            }
+        };
+
+        btnToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            alternarPanel();
+        });
+
+        if (cabecera) {
+            cabecera.addEventListener('click', alternarPanel);
+        }
     }
 }
 
